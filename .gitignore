@@ -9,9 +9,14 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+*.png
+*.PNG
+*.jpg
+
 /.vs
 /bin/Debug
 /out/build/x64-release
+/SoloEngine/vendor/
 /SoloEngine/vendor/assimp-build
 /SoloEngine/vendor/assimp-subbuild
 /SoloEngine/vendor/box2d-build
