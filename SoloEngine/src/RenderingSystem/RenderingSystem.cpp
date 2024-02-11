@@ -338,25 +338,17 @@ namespace Solo {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
+		generateCube(-worldLength / 2, worldHeight / 2 - 2, -50);
+		generateCube(-worldLength / 2, worldHeight/2 - 1, -50);
+		generateCube(-worldLength / 2, worldHeight / 2, -50);
+		generateCube(-worldLength / 2, worldHeight / 2 + 1, -50);
+		generateCube(-worldLength / 2, worldHeight / 2 + 2, -50);
 
-
-
-
-		int count = 0;
-		for (int ix = 0; ix < worldLength; ix++)
-		{
-			for (int iy = 0; iy < worldHeight; iy++)
-			{
-				for(int iz = 0; iz < worldWidth; iz++)
-				{
-					//voxels.push_back({ ix,iy,iz });
-
-					generateCube(ix, iy+20, iz);
-					
-				}
-			}
-		}
-
+		generateCube(worldLength / 2, worldHeight / 2 - 2, -50);
+		generateCube(worldLength/2, worldHeight / 2 - 1, -50);
+		generateCube(worldLength/2, worldHeight / 2, -50);
+		generateCube(worldLength/2, worldHeight / 2 + 1, -50);
+		generateCube(worldLength / 2, worldHeight / 2 + 2, -50);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);

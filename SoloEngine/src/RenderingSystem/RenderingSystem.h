@@ -60,9 +60,9 @@ namespace Solo {
 		std::vector<unsigned int> indexData = {};
 		
 
-		int worldLength =200;
-		int worldWidth = 200;
-		int worldHeight = 1;
+		int worldLength = 50;
+		int worldWidth = 0;
+		int worldHeight = 50;
 
 		unsigned int vbuf;
 		unsigned int ibo;
