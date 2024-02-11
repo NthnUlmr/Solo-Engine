@@ -25,6 +25,9 @@ namespace Solo {
 	protected:
 	private:
 		
+
+		void generateCube(double wposx, double wposy, double wposz);
+
 		float t = 0.0;
 		int location = 0;
 		int location2 = 0;
@@ -53,12 +56,12 @@ namespace Solo {
 		std::vector<ShaderPipeline*> pipelines = {};
 
 		std::vector<glm::vec3> voxels = {};
-		std::vector<float> vertexData;
-		std::vector<unsigned int> indexData;
+		std::vector<float> vertexData = {};
+		std::vector<unsigned int> indexData = {};
 		
 
-		int worldLength =2000;
-		int worldWidth = 2000;
+		int worldLength =200;
+		int worldWidth = 200;
 		int worldHeight = 1;
 
 		unsigned int vbuf;
@@ -66,5 +69,49 @@ namespace Solo {
 
 		bool initialized = true;
 		GLFWwindow* soloWinCopy = nullptr;
+
+
+
+		float positions[40] = {
+	-0.5f, -0.5f,  0.5f,   0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,   1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,   1.0f, 1.0f,
+
+	-0.5f, -0.5f, -0.5f,   1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,   0.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,   1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,   0.0f, 0.0f
+
+		};
+
+		unsigned int indices[36] = {
+			//Top
+			2, 6, 7,
+			2, 3, 7,
+
+			//Bottom
+			0, 4, 5,
+			0, 1, 5,
+
+			//Left
+			0, 2, 6,
+			0, 4, 6,
+
+			//Right
+			1, 3, 7,
+			1, 5, 7,
+
+			//Front
+			0, 2, 3,
+			0, 1, 3,
+
+			//Back
+			4, 6, 7,
+			4, 5, 7,
+		};
+
+
+
 	}; // class RenderingSystem
 } // namespace Solo

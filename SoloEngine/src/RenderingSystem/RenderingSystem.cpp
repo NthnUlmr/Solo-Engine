@@ -180,44 +180,7 @@ namespace Solo {
 		//ShaderPipeline* texturedModel
 		//pipelines[0]->addShader(basePath + "basic.shader");
 		//pipelines[0]->addTexture(basePath + "grenuk.PNG");
-		float positions[40] = {
-			-0.5f, -0.5f,  0.5f,   0.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,   1.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,   1.0f, 1.0f,
 
-			-0.5f, -0.5f, -0.5f,   1.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,   0.0f, 1.0f,
-			-0.5f,  0.5f, -0.5f,   1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,   0.0f, 0.0f
-
-		};
-
-		unsigned int indices[36] = {
-			//Top
-			2, 6, 7,
-			2, 3, 7,
-
-			//Bottom
-			0, 4, 5,
-			0, 1, 5,
-
-			//Left
-			0, 2, 6,
-			0, 4, 6,
-
-			//Right
-			1, 3, 7,
-			1, 5, 7,
-
-			//Front
-			0, 2, 3,
-			0, 1, 3,
-
-			//Back
-			4, 6, 7,
-			4, 5, 7,
-		};
 
 		{
 
@@ -386,34 +349,9 @@ namespace Solo {
 			{
 				for(int iz = 0; iz < worldWidth; iz++)
 				{
-					voxels.push_back({ ix,iy,iz });
-					for (int ip = 0; ip < 40; ip++)
-					{
-						int res = ip % 5;
-						if (res == 0)
-						{
-							vertexData.push_back(positions[ip] + ix);
-						}
-						else if (res == 1)
-						{
-							vertexData.push_back(positions[ip] + iy);
-						}
-						else if (res == 2)
-						{
-							vertexData.push_back(positions[ip] + iz);
-						}
-						else
-						{
-							vertexData.push_back(positions[ip]);
-						}
-						
-					}
-					
-					for (int ii = 0; ii < 36; ii++)
-					{
-						indexData.push_back(indices[ii] + count*8);
-					}
-					count++;
+					//voxels.push_back({ ix,iy,iz });
+
+					generateCube(ix, iy+20, iz);
 					
 				}
 			}
@@ -529,6 +467,44 @@ namespace Solo {
 			return false;
 		}
 
+	}
+
+
+
+	void RenderingSystem::generateCube(double wposx, double wposy, double wposz)
+	{
+		double startIndex = (vertexData.size() / 5);
+		if(startIndex > 1e15)
+		{
+			startIndex = 0;
+		}
+		// Generate Vertices for Cube
+		for (int ip = 0; ip < 40; ip++)
+		{
+			int res = ip % 5;
+			if (res == 0)
+			{
+				vertexData.push_back(positions[ip] + wposx);
+			}
+			else if (res == 1)
+			{
+				vertexData.push_back(positions[ip] + wposy);
+			}
+			else if (res == 2)
+			{
+				vertexData.push_back(positions[ip] + wposz);
+			}
+			else
+			{
+				vertexData.push_back(positions[ip]);
+			}
+
+		}
+
+		for (int ii = 0; ii < 36; ii++)
+		{
+			indexData.push_back(indices[ii] + startIndex);
+		}
 	}
 
 	void RenderingSystem::destroy(std::shared_ptr<Scene> scene)
