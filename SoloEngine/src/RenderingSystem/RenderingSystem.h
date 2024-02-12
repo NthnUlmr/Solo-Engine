@@ -26,7 +26,9 @@ namespace Solo {
 	private:
 		
 
-		void generateCube(double wposx, double wposy, double wposz);
+		void generateCube(double objIdx, double wposx, double wposy, double wposz);
+		void moveCube(double idx, double dx, double dy, double dz, double du, double dv);
+		bool checkCubeCollide(double idxa, double idxb);
 
 		float t = 0.0;
 		int location = 0;
@@ -58,6 +60,8 @@ namespace Solo {
 		std::vector<glm::vec3> voxels = {};
 		std::vector<float> vertexData = {};
 		std::vector<unsigned int> indexData = {};
+		std::vector<unsigned int> objectIndex = {};
+		std::vector<unsigned int> objectVertexIndex = {};
 		
 
 		int worldLength = 50;
@@ -71,6 +75,12 @@ namespace Solo {
 		GLFWwindow* soloWinCopy = nullptr;
 
 
+		double paddleSpeed = 40.0;
+		double paddleDirection = 0.0;
+
+
+		glm::vec3 ballVelocity = { 50.0, -8.0, 0.0 };
+		glm::vec3 ballPos = { 0.0, 0.0, 0.0 };
 
 		float positions[40] = {
 	-0.5f, -0.5f,  0.5f,   0.0f, 0.0f,

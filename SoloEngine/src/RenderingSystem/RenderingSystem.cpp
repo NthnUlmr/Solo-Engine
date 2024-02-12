@@ -1,6 +1,6 @@
 #include "RenderingSystem.h"
 
-
+#include "InputManager.h"
 
 
 #include <fstream>
@@ -338,17 +338,19 @@ namespace Solo {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-		generateCube(-worldLength / 2, worldHeight / 2 - 2, -50);
-		generateCube(-worldLength / 2, worldHeight/2 - 1, -50);
-		generateCube(-worldLength / 2, worldHeight / 2, -50);
-		generateCube(-worldLength / 2, worldHeight / 2 + 1, -50);
-		generateCube(-worldLength / 2, worldHeight / 2 + 2, -50);
+		generateCube(0,-worldLength / 2, worldHeight / 2 - 2, -50);
+		generateCube(1,-worldLength / 2, worldHeight / 2 - 1, -50);
+		generateCube(2,-worldLength / 2, worldHeight / 2, -50);
+		generateCube(3,-worldLength / 2, worldHeight / 2 + 1, -50);
+		generateCube(4,-worldLength / 2, worldHeight / 2 + 2, -50);
 
-		generateCube(worldLength / 2, worldHeight / 2 - 2, -50);
-		generateCube(worldLength/2, worldHeight / 2 - 1, -50);
-		generateCube(worldLength/2, worldHeight / 2, -50);
-		generateCube(worldLength/2, worldHeight / 2 + 1, -50);
-		generateCube(worldLength / 2, worldHeight / 2 + 2, -50);
+		generateCube(5,worldLength / 2, worldHeight / 2 - 2, -50);
+		generateCube(6,worldLength / 2, worldHeight / 2 - 1, -50);
+		generateCube(7,worldLength / 2, worldHeight / 2, -50);
+		generateCube(8,worldLength / 2, worldHeight / 2 + 1, -50);
+		generateCube(9,worldLength / 2, worldHeight / 2 + 2, -50);
+
+		generateCube(10, 0.0, worldHeight / 2 + 2, -50);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
@@ -365,6 +367,7 @@ namespace Solo {
 		proj = scene->camera_->getProjection();
 		
 		
+
 		// Get all entities with a transform, a model, and a texture component
 		// These are non-voxel things
 
@@ -387,6 +390,41 @@ namespace Solo {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//model = glm::rotate(model, 0.0001f, glm::vec3(0, 1, 0));
 			//model = glm::rotate(model, 0.0001f, glm::vec3(0, 0, 1));
+
+			
+			paddleDirection = 0;
+			if(InputManager::IsKeyPressedOrHeld(Key::E))
+			{
+				paddleDirection += 1; // up
+			}
+
+			if (InputManager::IsKeyPressedOrHeld(Key::Q))
+			{
+				paddleDirection += -1; // down
+			}
+			
+			moveCube(0, 0.000f, 0.0001f * paddleSpeed * paddleDirection, 0.0, 0.0001f * paddleSpeed * paddleDirection, 0.0f * paddleSpeed * paddleDirection);
+			moveCube(1, 0.000f, 0.0001f * paddleSpeed * paddleDirection, 0.0, 0.0001f * paddleSpeed * paddleDirection, 0.0001f * paddleSpeed * paddleDirection);
+			moveCube(2, 0.000f, 0.0001f * paddleSpeed * paddleDirection, 0.0, 0.000f * paddleSpeed * paddleDirection, 0.0001f * paddleSpeed * paddleDirection);
+			moveCube(3, 0.000f, 0.0001f * paddleSpeed * paddleDirection, 0.0, 0.000f * paddleSpeed * paddleDirection, 0.000f * paddleSpeed * paddleDirection);
+			moveCube(4, 0.000f, 0.0001f * paddleSpeed * paddleDirection, 0.0, 0.0001f * paddleSpeed * paddleDirection, 0.0001f * paddleSpeed * paddleDirection);
+
+			moveCube(10, ballVelocity.x * 0.0001f, ballVelocity.y * 0.0001f, ballVelocity.z * 0.0001f, 0.0f,0.0f);
+
+			// Check collision with right paddle
+			if (checkCubeCollide(10, 5) || checkCubeCollide(10, 6) || checkCubeCollide(10, 7) || checkCubeCollide(10, 8) || checkCubeCollide(10, 9) ||
+				checkCubeCollide(10, 0) || checkCubeCollide(10, 1) || checkCubeCollide(10, 2) || checkCubeCollide(10, 3) || checkCubeCollide(10, 4) )
+			{
+				ballVelocity.x = -ballVelocity.x;
+				ballVelocity.y = -ballVelocity.y;
+				ballVelocity.z = -ballVelocity.z;
+			}
+
+			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
+			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(unsigned int), &indexData[0], GL_DYNAMIC_DRAW);
 
 			glUseProgram(shader);
 			glBindVertexArray(modelVao);
@@ -463,7 +501,7 @@ namespace Solo {
 
 
 
-	void RenderingSystem::generateCube(double wposx, double wposy, double wposz)
+	void RenderingSystem::generateCube(double objIdx, double wposx, double wposy, double wposz)
 	{
 		double startIndex = (vertexData.size() / 5);
 		if(startIndex > 1e15)
@@ -490,13 +528,70 @@ namespace Solo {
 			{
 				vertexData.push_back(positions[ip]);
 			}
-
+			objectVertexIndex.push_back(objIdx);
 		}
 
 		for (int ii = 0; ii < 36; ii++)
 		{
 			indexData.push_back(indices[ii] + startIndex);
+			objectIndex.push_back(objIdx);
 		}
+	}
+
+	void RenderingSystem::moveCube(double idx, double dx, double dy, double dz,double du, double dv)
+	{
+		// This is garbage for large vertexData lists lmao don't do this
+		for (int vertId = 0; vertId+2 < vertexData.size(); vertId+=5) // 5 is width of rows in vertex, 
+		{
+			if (objectVertexIndex.at(vertId) == idx)
+			{
+				vertexData.at(vertId) += dx;
+				vertexData.at(vertId+1) += dy;
+				vertexData.at(vertId+2) += dz;
+				vertexData.at(vertId + 3) += du;
+				vertexData.at(vertId + 4) += dv;
+			}
+		}
+
+	}
+
+	bool RenderingSystem::checkCubeCollide(double idxa, double idxb)
+	{
+		glm::vec3 vertexASum = { 0.0,0.0,0.0 };
+		glm::vec3 vertexBSum = { 0.0,0.0,0.0 };
+		double vertACount = 0.0;
+		double vertBCount = 0.0;
+		// This is garbage for large vertexData lists lmao don't do this
+		for (int vertId = 0; vertId + 2 < vertexData.size(); vertId += 5) // 5 is width of rows in vertex, 
+		{
+			if (objectVertexIndex.at(vertId) == idxa)
+			{
+				vertexASum = vertexASum + glm::vec3(vertexData.at(vertId), vertexData.at(vertId + 1), vertexData.at(vertId + 2) );
+				vertACount++;
+			}
+
+			if (objectVertexIndex.at(vertId) == idxb)
+			{
+				vertexBSum = vertexBSum + glm::vec3(vertexData.at(vertId), vertexData.at(vertId + 1), vertexData.at(vertId + 2));
+				vertBCount++;
+			}
+		}
+
+		glm::vec3 vertexAAvg = { vertexASum.x/ vertACount, vertexASum.y / vertACount, vertexASum.z / vertACount, };
+		glm::vec3 vertexBAvg = { vertexBSum.x / vertBCount, vertexBSum.y / vertBCount, vertexBSum.z / vertBCount, };
+
+		glm::vec3 vertDiff = vertexAAvg - vertexBAvg;
+		double distance = glm::length(vertDiff);
+
+		if (distance < 1.0) // Assume cubes have 'radius' of 0.5 not a valid assumption but whatever lol
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+
 	}
 
 	void RenderingSystem::destroy(std::shared_ptr<Scene> scene)
