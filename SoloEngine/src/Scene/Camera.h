@@ -76,8 +76,8 @@ namespace Solo
 		glm::vec3 focalPoint_ = {0.0f,0.0f,0.0f};
 		
 		float rotX_ = 0.0f;
-		float rotY_ = 0.0f;
-		float rotZ_ = glm::radians(45.0f);
+		float rotY_ = 90.0f;
+		float rotZ_ = 0.0f;
 
 		glm::mat4 projection_ = {};
 		glm::mat4 view_ = {};

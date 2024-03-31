@@ -19,7 +19,7 @@ namespace Solo {
 	public:
 		RenderingSystem() = default;
 		virtual void init(std::shared_ptr<Scene> scene) override;
-		virtual bool update(std::shared_ptr<Scene> scene) override;
+		virtual bool update(std::shared_ptr<Scene> scene, const TimeStep& dt) override;
 		virtual void destroy(std::shared_ptr<Scene> scene) override;
 		~RenderingSystem() = default;
 	protected:
@@ -27,11 +27,12 @@ namespace Solo {
 		
 
 		void generateCube(double objIdx, double wposx, double wposy, double wposz);
-		void moveCube(double idx, double dx, double dy, double dz, double du, double dv);
+		void generateRectByCenter(double objIdx, double wposx, double wposy, double wposz, double width, double height);
+		void moveCube(double idx, double dx, double dy, double dz, double r, double g, double b);
 		bool checkCubeCollide(double idxa, double idxb);
-
+		bool checkCubeWallCollide(double idx);
 		float t = 0.0;
-		int location = 0;
+		int location1 = 0;
 		int location2 = 0;
 		int location3 = 0;
 		int location4 = 0;
@@ -64,9 +65,9 @@ namespace Solo {
 		std::vector<unsigned int> objectVertexIndex = {};
 		
 
-		int worldLength = 50;
+		int worldLength = 25;
 		int worldWidth = 0;
-		int worldHeight = 50;
+		int worldHeight = 18;
 
 		unsigned int vbuf;
 		unsigned int ibo;
@@ -75,23 +76,23 @@ namespace Solo {
 		GLFWwindow* soloWinCopy = nullptr;
 
 
-		double paddleSpeed = 40.0;
+		double paddleSpeed = 20.0;
 		double paddleDirection = 0.0;
 
 
-		glm::vec3 ballVelocity = { 50.0, -8.0, 0.0 };
+		glm::vec3 ballVelocity = { 80.0, -8.0, 0.0 };
 		glm::vec3 ballPos = { 0.0, 0.0, 0.0 };
 
-		float positions[40] = {
-	-0.5f, -0.5f,  0.5f,   0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,   1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,   1.0f, 1.0f,
+		float positions[48] = {
+	-0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,
 
-	-0.5f, -0.5f, -0.5f,   1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,   0.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,   1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,   0.0f, 0.0f
+	-0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f
 
 		};
 

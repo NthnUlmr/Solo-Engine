@@ -29,12 +29,13 @@ namespace Solo {
 		window_->SetEventCallback(SOLO_BIND_EVENT_CALLBACK(App::OnEvent));
 		InputManager::Init();
 		renderingSystem_->init(activeScene_);
+		audioSystem_->init(activeScene_);
 	}
 
 	void App::run()
 	{
 		Logger::Log("App::run() Entered", LogLevel::TRACE);
-		TimeStep dt;
+
 		while (isRunning) {
 			if (!activeScene_) continue;
 
@@ -43,16 +44,18 @@ namespace Solo {
 
 			CameraController(timestep);
 
-
+			
 			activeScene_->update();
+			audioSystem_->update(activeScene_, timestep);
 			Logger::Log("RenderingSystem::update() Entered", LogLevel::INSANE);
 
 			for (auto layer : appLayerStack)
 			{
-				layer->OnUpdate(dt);
+				layer->OnUpdate(timestep);
 			}
 
-			isRunning = isRunning && renderingSystem_->update(activeScene_);
+			isRunning = isRunning 
+					&& renderingSystem_->update(activeScene_, timestep);
 			timeLastFrameMS_ = time;
 		}
 	}
@@ -117,10 +120,12 @@ namespace Solo {
 				m_CameraVelocityZ = 0.0;
 			}
 
-
-			m_CameraRotationX -= ((mouseP[0] - prevMousePee[0]) * mouseXScale * mouseHorzSensitivity);
-			m_CameraRotationY -= ((mouseP[1] - prevMousePee[1]) * mouseYScale * mouseVertSensitivity);
-			m_CameraRotationY = std::clamp(m_CameraRotationY, -89., 89.);
+			if (prevMousePee[0] != 0.0)
+			{
+				m_CameraRotationX -= ((mouseP[0] - prevMousePee[0]) * mouseXScale * mouseHorzSensitivity);
+				m_CameraRotationY -= ((mouseP[1] - prevMousePee[1]) * mouseYScale * mouseVertSensitivity);
+				m_CameraRotationY = std::clamp(m_CameraRotationY, -89., 89.);
+			}
 
 
 

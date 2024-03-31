@@ -1,14 +1,15 @@
 #pragma once
-#include "solopch.h"
-#include "Solo/Core/TimeStep.h"
+
+#include "TimeStep.h"
 #include <al.h>
 #include <alc.h>
 #include <efx.h>
 #include <EFX-Util.h>
 
-#include <vendor/glm/glm/glm.hpp>
+#include <glm/glm.hpp>
 
-#include <vendor/audiofile/AudioFile.h>
+#include <AudioFile.h>
+
 #define alcCall(function, device, ...) alcCallImpl(__FILE__, __LINE__, function, device, __VA_ARGS__)
 #define alCall(function, ...) alCallImpl(__FILE__, __LINE__, function, __VA_ARGS__)
 
@@ -56,7 +57,7 @@ public:
 		alCall(alGenBuffers, 1, &buffer);
 
 		std::uint8_t channels;
-		std::int32_t sampleRate;
+		std::int32_t sampleRate = 44100;
 		std::uint8_t bitsPerSample;
 		ALsizei dataSize;
 		char* rawSound = load_wav("C:\\Users\\quaz9\\source\\repos\\Solo_Engine\\Solo_Editor\\assets\\sounds\\test_mono.wav", channels, sampleRate, bitsPerSample, dataSize);
@@ -65,10 +66,23 @@ public:
 			std::cerr << "ERROR: Could not load wav" << std::endl;
 
 		}
+		dataSize = 44100*16;
 		char* end = rawSound + dataSize;
-		std::vector<char> soundData(rawSound, end);
 
-		ALenum format;
+		bitsPerSample = 16;
+		soundData.resize(dataSize);
+
+		double PI = 3.1415936;
+		double TWO_PI = 2.0 * PI;
+		for (int ii = 0; ii < soundData.size(); ii++)
+		{
+			double res = sin_carrier((double)ii / (double)sampleRate, 391.995);// 1.0 - 2.0 * fmod(((double)ii / (double)sampleRate), (1.0 / 880.0)) * 880.0;
+			double res2 = sin_carrier((double)ii / (double)sampleRate, 261.628); // 1.0 - 2.0 * fmod(((double)ii / (double)sampleRate), (1.0 / 261.63)) * 261.63;
+			double res3 = sin_carrier((double)ii / (double)sampleRate, 329.628); // 1.0 - 2.0 * fmod(((double)ii / (double)sampleRate), (1.0 / 329.628)) * 329.628;
+			soundData.at(ii) = floor((res+res2+res3)/3.0 * 65535.0 / 2.0);
+		}
+
+		
 		if (channels == 1 && bitsPerSample == 8)
 			format = AL_FORMAT_MONO8;
 		else if (channels == 1 && bitsPerSample == 16)
@@ -87,17 +101,17 @@ public:
 
 
 		alCall(alBufferData, buffer, format, soundData.data(), soundData.size(), sampleRate);
-		soundData.clear(); // erase the sound in RAM
+		//soundData.clear(); // erase the sound in RAM
 
 		alCall(alDistanceModel, AL_EXPONENT_DISTANCE);
-		alCall(alListenerf, AL_GAIN, 1);
+		alCall(alListenerf, AL_GAIN, 0.1);
 
 		alCall(alListener3f,AL_POSITION, 0.0, 0.0, 0.0);
 
 
 		alCall(alGenSources, 1, &source);
 		alCall(alSourcef, source, AL_PITCH, 1);
-		alCall(alSourcef, source, AL_GAIN, 1.f);
+		alCall(alSourcef, source, AL_GAIN, 0.5f);
 		alCall(alSource3f, source, AL_POSITION, 0, 0, 0);
 		alCall(alSource3f, source, AL_VELOCITY, 0, 0, 0);
 		alCall(alSourcei, source, AL_LOOPING, AL_FALSE);
@@ -110,7 +124,21 @@ public:
 
 	}
 
+	ALenum format;
+	double PI = 3.1415936;
+	double TWO_PI = 2.0 * PI;
+	std::uint8_t channels;
+	std::int32_t sampleRate;
+	std::uint8_t bitsPerSample;
+	ALsizei dataSize;
+	std::vector<short> soundData;// (44100 * 16);
 
+	double sin_carrier(double time, double freq)
+	{
+		return sin(TWO_PI * freq * time)* 0.9 + sin(TWO_PI * freq * 2 * time) * 0.1;
+	}
+
+	std::vector<double> freqs;
 
 	static void DisplayALError(const char* msg, ALenum error) {
 		std::cerr << msg << " " << error << std::endl;
@@ -500,6 +528,20 @@ public:
 			{
 				//Shutdown();
 			}
+
+				for (int ii = 0; ii < soundData.size(); ii++)
+				{
+					double freqSum = 0.0;
+					for (double freq : freqs)
+					{
+						freqSum += sin_carrier((double)ii / (double)sampleRate, freq);
+					}
+					soundData.at(ii) = floor((freqSum) / freqs.size() * 65535.0 / 2.0);
+				}
+
+				alCall(alBufferData, buffer, format, soundData.data(), dataSize, sampleRate);
+				
+			
 		}
 
 		void _shutdown() {
