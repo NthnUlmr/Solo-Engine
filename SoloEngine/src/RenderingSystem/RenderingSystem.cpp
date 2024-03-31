@@ -204,7 +204,7 @@ namespace Solo {
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)0);
 			glEnableVertexAttribArray(0);
 
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)(sizeof(float) * 3));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)(sizeof(float) * 3));
 			glEnableVertexAttribArray(1);
 		
 		}
@@ -406,13 +406,13 @@ namespace Solo {
 				paddleDirection += -1; // down
 			}
 			
-			moveCube(0, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0f * paddleSpeed * paddleDirection,1.0);
-			moveCube(1, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, dt.GetSeconds() * paddleSpeed * paddleDirection, dt.GetSeconds() * paddleSpeed * paddleDirection, 1.0);
-			moveCube(2, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.000f * paddleSpeed * paddleDirection, dt.GetSeconds() * paddleSpeed * paddleDirection, 1.0);
-			moveCube(3, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.000f * paddleSpeed * paddleDirection, 0.000f * paddleSpeed * paddleDirection, 1.0);
-			moveCube(4, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, dt.GetSeconds() * paddleSpeed * paddleDirection, dt.GetSeconds() * paddleSpeed * paddleDirection, 1.0);
+			moveCube(0, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0,0.0,0.0);
+			moveCube(1, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			moveCube(2, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			moveCube(3, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			moveCube(4, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
 
-			moveCube(10, ballVelocity.x * dt.GetSeconds(), ballVelocity.y * dt.GetSeconds(), ballVelocity.z * dt.GetSeconds(), 0.0f,0.0f, 1.0);
+			moveCube(10, ballVelocity.x /1e12, ballVelocity.y / 1e12, ballVelocity.z / 1e12, 0.0f,0.0f, 1.0);
 
 			// Check collision with middle of paddle
 			if (checkCubeCollide(10, 7) || checkCubeCollide(10, 2) )
@@ -443,11 +443,11 @@ namespace Solo {
 			ballVelocity.y = 0.99997 * ballVelocity.y;
 
 			// Move right paddle to align with ball y coord
-			moveCube(5, 0.000f, ballVelocity.y * dt.GetSeconds(), 0.0, 0.0, 0.0, 0.0);
-			moveCube(6, 0.000f, ballVelocity.y * dt.GetSeconds(), 0.0, 0.0, 0.0, 0.0);
-			moveCube(7, 0.000f, ballVelocity.y * dt.GetSeconds(), 0.0, 0.0, 0.0, 0.0);
-			moveCube(8, 0.000f, ballVelocity.y * dt.GetSeconds(), 0.0, 0.0, 0.0, 0.0);
-			moveCube(9, 0.000f, ballVelocity.y * dt.GetSeconds(), 0.0, 0.0, 0.0, 0.0);
+			moveCube(5, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			moveCube(6, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			moveCube(7, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			moveCube(8, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			moveCube(9, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
 
 
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
@@ -571,16 +571,16 @@ namespace Solo {
 	void RenderingSystem::moveCube(double idx, double dx, double dy, double dz, double r, double g, double b)
 	{
 		// This is garbage for large vertexData lists lmao don't do this
-		for (int vertId = 0; vertId + 2 < vertexData.size(); vertId += 6) // 5 is width of rows in vertex, 
+		for (int vertId = 0; vertId + 5 < vertexData.size(); vertId += 6) // 5 is width of rows in vertex, 
 		{
 			if (objectVertexIndex.at(vertId) == idx)
 			{
 				vertexData.at(vertId) += dx;
 				vertexData.at(vertId + 1) += dy;
 				vertexData.at(vertId + 2) += dz;
-				vertexData.at(vertId + 3) += r;
-				vertexData.at(vertId + 4) += g;
-				vertexData.at(vertId + 5) += b;
+				vertexData.at(vertId + 3) = r;
+				vertexData.at(vertId + 4) = g;
+				vertexData.at(vertId + 5) = b;
 			}
 		}
 	}
@@ -664,7 +664,7 @@ namespace Solo {
 			}
 			else
 			{
-				vertexData.push_back(positions[ip]);
+				vertexData.push_back(0.5);
 			}
 			objectVertexIndex.push_back(objIdx);
 		}
