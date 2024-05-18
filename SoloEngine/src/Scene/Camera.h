@@ -69,7 +69,7 @@ namespace Solo
 		float fovd_ = 60.0f;
 		float aspectRatio_ = 1.778f;
 		float nearClip_ = 0.1f;
-		float farClip_ = 1000.0f;
+		float farClip_ = 100000.0f;
 
 		// Transformations
 		glm::vec3 position_ = {0.0f,8.0f,0.0f};

@@ -35,7 +35,10 @@ namespace Solo {
 	void App::run()
 	{
 		Logger::Log("App::run() Entered", LogLevel::TRACE);
-
+		double timeSinceLastLog = 0.0;
+		double logRate = 2.0; // Hz
+		double logInterval = 1.0 / logRate; // sec
+		double currentFrameCount = 0;
 		while (isRunning) {
 			if (!activeScene_) continue;
 
@@ -57,6 +60,17 @@ namespace Solo {
 			isRunning = isRunning 
 					&& renderingSystem_->update(activeScene_, timestep);
 			timeLastFrameMS_ = time;
+
+			timeSinceLastLog += timestep.GetSeconds();
+			currentFrameCount++;
+			if (timeSinceLastLog >= logInterval)
+			{
+				
+				std::cout << "FPS : " << currentFrameCount / timeSinceLastLog << std::endl;
+				timeSinceLastLog = 0.0;
+				currentFrameCount = 0.0;
+			}
+
 		}
 	}
 
@@ -157,6 +171,10 @@ namespace Solo {
 		}
 	prevMousePee = mouseP;
 	
+	m_CameraPosition[0] = 0.0;
+	m_CameraPosition[1] = 0.0;
+	m_CameraPosition[2] = 0.0;
+
 	activeScene_->camera_->setRotation((float)m_CameraRotationY, (float)m_CameraRotationX);
 	activeScene_->camera_->setPosition(m_CameraPosition);
 	}

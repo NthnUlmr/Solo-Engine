@@ -9,6 +9,7 @@
 #include "ShaderPipeline.h"
 #include "Window.h"
 #include "CubeMap.h"
+#include <random>
 
 namespace Solo {
 	
@@ -26,7 +27,7 @@ namespace Solo {
 	private:
 		
 
-		void generateCube(double objIdx, double wposx, double wposy, double wposz);
+		void generateCube(double objIdx, double wposx, double wposy, double wposz, double red, double blue, double green);
 		void generateRectByCenter(double objIdx, double wposx, double wposy, double wposz, double width, double height);
 		void moveCube(double idx, double dx, double dy, double dz, double r, double g, double b);
 		bool checkCubeCollide(double idxa, double idxb);
@@ -44,6 +45,13 @@ namespace Solo {
 
 		unsigned int shader = 0;
 		unsigned int skyboxShader = 0;
+
+		std::mt19937 generator;
+		std::normal_distribution<double> distribution = std::normal_distribution<double>(5.0, 5.0);
+
+		double maxX = 100;
+		double maxY = 100;
+		double divisor = 8;
 
 		unsigned int modelVao = 0;
 		unsigned int skyboxVao = 0;
@@ -94,6 +102,19 @@ namespace Solo {
 	-0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,
 	 0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f
 
+		};
+
+		// TODO why do these need to be 6 elements long still???
+		float quadPositions[24] = {
+			0.0f,	0.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+			0.0f,	1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+			1.0f,	0.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+			1.0f,	1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+		};
+
+		unsigned int quadIndices[6] = {
+			2, 0, 1,
+			1, 3, 2
 		};
 
 		unsigned int indices[36] = {

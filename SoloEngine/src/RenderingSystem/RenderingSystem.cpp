@@ -183,8 +183,6 @@ namespace Solo {
 
 
 		{
-
-
 			glGenVertexArrays(1, &modelVao);
 			glBindVertexArray(modelVao);
 
@@ -192,13 +190,15 @@ namespace Solo {
 			
 			glGenBuffers(1, &vbuf);
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_DYNAMIC_DRAW);
+			//glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadPositions), quadPositions, GL_DYNAMIC_DRAW);
 
 
 			
 			glGenBuffers(1, &ibo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+			//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_DYNAMIC_DRAW);
 
 			// Specify layout of buffer
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)0);
@@ -338,22 +338,44 @@ namespace Solo {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-		generateCube(0,-worldLength / 2, worldHeight / 2 - 2, -50);
-		generateCube(1,-worldLength / 2, worldHeight / 2 - 1, -50);
-		generateCube(2,-worldLength / 2, worldHeight / 2, -50);
-		generateCube(3,-worldLength / 2, worldHeight / 2 + 1, -50);
-		generateCube(4,-worldLength / 2, worldHeight / 2 + 2, -50);
+		//generateCube(0,-worldLength / 2, worldHeight / 2 - 2, -50, 1.0, 1.0, 1.0);
+		//generateCube(1,-worldLength / 2, worldHeight / 2 - 1, -50, 1.0, 1.0, 1.0);
+		//generateCube(2,-worldLength / 2, worldHeight / 2, -50, 1.0, 1.0, 1.0);
+		//generateCube(3,-worldLength / 2, worldHeight / 2 + 1, -50, 1.0, 1.0, 1.0);
+		//generateCube(4,-worldLength / 2, worldHeight / 2 + 2, -50, 1.0, 1.0, 1.0);
 
-		generateCube(5,worldLength / 2, worldHeight / 2 - 2, -50);
-		generateCube(6,worldLength / 2, worldHeight / 2 - 1, -50);
-		generateCube(7,worldLength / 2, worldHeight / 2, -50);
-		generateCube(8,worldLength / 2, worldHeight / 2 + 1, -50);
-		generateCube(9,worldLength / 2, worldHeight / 2 + 2, -50);
+		//generateCube(5,worldLength / 2, worldHeight / 2 - 2, -50, 1.0, 1.0, 1.0);
+		//generateCube(6,worldLength / 2, worldHeight / 2 - 1, -50, 1.0, 1.0, 1.0);
+		//generateCube(7,worldLength / 2, worldHeight / 2, -50, 1.0, 1.0, 1.0);
+		//generateCube(8,worldLength / 2, worldHeight / 2 + 1, -50, 1.0, 1.0, 1.0);
+		//generateCube(9,worldLength / 2, worldHeight / 2 + 2, -50, 1.0, 1.0, 1.0);
 
-		generateCube(10, 0.0, worldHeight / 2 + 2, -50);
+		//generateCube(10, 0.0, worldHeight / 2 + 2, -50, 1.0, 1.0, 1.0);
 
-		generateRectByCenter(11, 0.0, worldHeight/2.0, -51.0, worldLength, worldHeight);
+		//generateRectByCenter(11, 0.0, worldHeight/2.0, -51.0, worldLength, worldHeight);
 
+		
+		//distribution = std::normal_distribution<double>(0.0, 1.0);
+
+		/*for (int ii = 0; ii < maxX; ii++)
+		{
+			for (int jj = 0; jj < maxY; jj++)
+			{
+				generateCube(ii + 11, ii, distribution(generator), jj, std::remainder((double)ii , divisor), std::remainder((double)jj, divisor), divisor - std::max(std::remainder(ii, divisor), std::remainder(jj, divisor)));
+			}
+		}*/
+
+
+		for (int ii = 0; ii < 24; ii ++)
+		{
+			vertexData.push_back(quadPositions[ii]);
+		}
+
+		for (int ii = 0; ii < 6; ii++)
+		{
+			indexData.push_back(quadIndices[ii]);
+		}
+		
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
@@ -389,7 +411,7 @@ namespace Solo {
 			ImGui::NewFrame();
 			ImGui::ShowDemoWindow();*/
 
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 1, 0));
 			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 0, 1));
@@ -405,50 +427,68 @@ namespace Solo {
 			{
 				paddleDirection += -1; // down
 			}
-			
-			moveCube(0, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0,0.0,0.0);
-			moveCube(1, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			moveCube(2, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			moveCube(3, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			moveCube(4, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+	
 
-			moveCube(10, ballVelocity.x /1e12, ballVelocity.y / 1e12, ballVelocity.z / 1e12, 0.0f,0.0f, 1.0);
+			generator.seed(distribution(generator));
 
-			// Check collision with middle of paddle
-			if (checkCubeCollide(10, 7) || checkCubeCollide(10, 2) )
+			/*for (int ii = 0; ii < maxX; ii++)
 			{
-				ballVelocity.x = -1.5*ballVelocity.x;
-				ballVelocity.y = -1.5*ballVelocity.y;
-				ballVelocity.z = -ballVelocity.z;
-			} // Top of paddle
-			else if (checkCubeCollide(10, 5) || checkCubeCollide(10, 6)  || checkCubeCollide(10, 0) || checkCubeCollide(10, 1))
-			{
-				ballVelocity.x = -0.9 * ballVelocity.x;
-				ballVelocity.y =  1.25*ballVelocity.y;
-				ballVelocity.z = -ballVelocity.z;
-			} // Bottom of paddle
-			else if (checkCubeCollide(10, 8) || checkCubeCollide(10, 9) || checkCubeCollide(10, 3) || checkCubeCollide(10, 4))
-			{
-				ballVelocity.x = -0.9*ballVelocity.x;
-				ballVelocity.y = 1.25*ballVelocity.y;
-				ballVelocity.z = -ballVelocity.z;
-			}
-			else if (checkCubeWallCollide(10))
-			{
-				ballVelocity.x = 1.05 * ballVelocity.x;
-				ballVelocity.y = -1.05 * ballVelocity.y;
-				ballVelocity.z = -ballVelocity.z;
-			}
-			ballVelocity.x = 0.99997 * ballVelocity.x;
-			ballVelocity.y = 0.99997 * ballVelocity.y;
+				for (int jj = 0; jj < maxY; jj++)
+				{
+					moveCube(ii + 11, 0.0, -1.0, 0.0, std::remainder((double)ii, divisor), std::remainder((double)jj, divisor), divisor - std::max(std::remainder(ii, divisor), std::remainder(jj, divisor)));
+				}
+			}*/
 
-			// Move right paddle to align with ball y coord
-			moveCube(5, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			moveCube(6, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			moveCube(7, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			moveCube(8, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			moveCube(9, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
 
+
+			//if (paddleDirection != 0.0)
+			//{
+			//	moveCube(0, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(1, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(2, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(3, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(4, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
+			//}
+			//if (glm::length(ballVelocity) > 1e3)
+			//{
+			//	moveCube(10, ballVelocity.x / 1e12, ballVelocity.y / 1e12, ballVelocity.z / 1e12, 0.0f, 0.0f, 1.0);
+			//}
+			//// Check collision with middle of paddle
+			//if (checkCubeCollide(10, 7) || checkCubeCollide(10, 2) )
+			//{
+			//	ballVelocity.x = -1.5*ballVelocity.x;
+			//	ballVelocity.y = -1.5*ballVelocity.y;
+			//	ballVelocity.z = -ballVelocity.z;
+			//} // Top of paddle
+			//else if (checkCubeCollide(10, 5) || checkCubeCollide(10, 6)  || checkCubeCollide(10, 0) || checkCubeCollide(10, 1))
+			//{
+			//	ballVelocity.x = -0.9 * ballVelocity.x;
+			//	ballVelocity.y =  1.25*ballVelocity.y;
+			//	ballVelocity.z = -ballVelocity.z;
+			//} // Bottom of paddle
+			//else if (checkCubeCollide(10, 8) || checkCubeCollide(10, 9) || checkCubeCollide(10, 3) || checkCubeCollide(10, 4))
+			//{
+			//	ballVelocity.x = -0.9*ballVelocity.x;
+			//	ballVelocity.y = 1.25*ballVelocity.y;
+			//	ballVelocity.z = -ballVelocity.z;
+			//}
+			//else if (checkCubeWallCollide(10))
+			//{
+			//	ballVelocity.x = 1.05 * ballVelocity.x;
+			//	ballVelocity.y = -1.05 * ballVelocity.y;
+			//	ballVelocity.z = -ballVelocity.z;
+			//}
+			//ballVelocity.x = 0.99997 * ballVelocity.x;
+			//ballVelocity.y = 0.99997 * ballVelocity.y;
+			//if (glm::length(ballVelocity) > 1e3)
+			//{
+			//	// Move right paddle to align with ball y coord
+			//	moveCube(5, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(6, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(7, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(8, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			//	moveCube(9, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
+			//}
 
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
@@ -463,7 +503,7 @@ namespace Solo {
 
 			if (( oldwidth != width || oldheight != height ) && width > 1e-5 && height > 1e-5)
 			{
-				scene->camera_->setProjectionPerspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
+				scene->camera_->setProjectionPerspective(60.0f, (float)width / (float)height, 0.1f, 10000.0f);
 				glUniformMatrix4fv(location3, 1, GL_FALSE, &scene->camera_->getProjection()[0].x);
 				oldwidth = width;
 				oldheight = height;
@@ -497,18 +537,19 @@ namespace Solo {
 			}
 
 			{ // Skybox here
-				glDepthMask(GL_FALSE);
-				glUseProgram(skyboxShader);
+				//glDepthMask(GL_FALSE);
+				//glUseProgram(skyboxShader);
 
-				glBindVertexArray(skyboxVao);
-				//view = glm::mat4(glm::mat3(view));
-				//proj = glm::perspective(glm::radians(10.0f), (float)width / (float)height, 0.1f, 10.1f);
-				glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(view))));
-				glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
-				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getHandle());
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+				//glBindVertexArray(skyboxVao);
+				////view = glm::mat4(glm::mat3(view));
+				////proj = glm::perspective(glm::radians(10.0f), (float)width / (float)height, 0.1f, 10.1f);
+				//glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(view))));
+				//glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
+				//glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getHandle());
+				//glDrawArrays(GL_TRIANGLES, 0, 36);
 
-				glDepthMask(GL_TRUE);
+				//glDepthMask(GL_TRUE);
+				
 			}
 
 			/*ImGui::Render();
@@ -531,7 +572,7 @@ namespace Solo {
 
 
 
-	void RenderingSystem::generateCube(double objIdx, double wposx, double wposy, double wposz)
+	void RenderingSystem::generateCube(double objIdx, double wposx, double wposy, double wposz, double red, double green, double blue)
 	{
 		double startIndex = (vertexData.size() / 6);
 		if(startIndex > 1e15)
@@ -554,9 +595,17 @@ namespace Solo {
 			{
 				vertexData.push_back(positions[ip] + wposz);
 			}
-			else
+			else if (res == 3)
 			{
-				vertexData.push_back(positions[ip]);
+				vertexData.push_back(red);
+			}
+			else if (res == 4)
+			{
+				vertexData.push_back(green);
+			}
+			else if (res == 5)
+			{
+				vertexData.push_back(blue);
 			}
 			objectVertexIndex.push_back(objIdx);
 		}
@@ -571,7 +620,11 @@ namespace Solo {
 	void RenderingSystem::moveCube(double idx, double dx, double dy, double dz, double r, double g, double b)
 	{
 		// This is garbage for large vertexData lists lmao don't do this
-		for (int vertId = 0; vertId + 5 < vertexData.size(); vertId += 6) // 5 is width of rows in vertex, 
+		int numVinV = 6;
+		int numVInCube = 36* numVinV;
+		int mindex = idx * numVInCube;
+		int maxdex = (idx * numVInCube + numVInCube);
+		for (int vertId = mindex; vertId + numVinV-1 < maxdex; vertId += numVinV) // 5 is width of rows in vertex, 
 		{
 			if (objectVertexIndex.at(vertId) == idx)
 			{
@@ -583,16 +636,23 @@ namespace Solo {
 				vertexData.at(vertId + 5) = b;
 			}
 		}
+
 	}
 
 	bool RenderingSystem::checkCubeCollide(double idxa, double idxb)
 	{
+		return false;
 		glm::vec3 vertexASum = { 0.0,0.0,0.0 };
 		glm::vec3 vertexBSum = { 0.0,0.0,0.0 };
 		double vertACount = 0.0;
 		double vertBCount = 0.0;
 		// This is garbage for large vertexData lists lmao don't do this
-		for (int vertId = 0; vertId + 2 < vertexData.size(); vertId += 6) // 5 is width of rows in vertex, 
+		// OOPSie
+		int numVinV = 6;
+		int numVInCube = 36* numVinV;
+		int stidx = std::min(idxa, idxb)* numVInCube;
+		int endx = std::max(idxa, idxb) * numVInCube + numVInCube;
+		for (int vertId = stidx; vertId + 2 < endx; vertId += numVinV) // 5 is width of rows in vertex, 
 		{
 			if (objectVertexIndex.at(vertId) == idxa)
 			{
@@ -626,6 +686,7 @@ namespace Solo {
 
 	bool RenderingSystem::checkCubeWallCollide(double idx)
 	{
+		return false;
 		bool res = false;
 		// This is garbage for large vertexData lists lmao don't do this
 		for (int vertId = 0; vertId + 2 < vertexData.size(); vertId += 6) // 5 is width of rows in vertex, 
