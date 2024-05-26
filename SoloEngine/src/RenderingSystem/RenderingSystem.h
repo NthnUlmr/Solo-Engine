@@ -38,6 +38,7 @@ namespace Solo {
 		int location3 = 0;
 		int location4 = 0;
 		int location5 = 0;
+		int location6 = 0;
 
 		Texture* texture;
 		Texture* texture2;
@@ -104,11 +105,11 @@ namespace Solo {
 
 		};
 
-		// TODO why do these need to be 6 elements long still???
+		// TODO why do these need to be 6 elements long still??
 		float quadPositions[24] = {
-			0.0f,	0.0f,	0.0f,	0.0f,	0.0f,	0.0f,
-			0.0f,	1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
-			1.0f,	0.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+			-1.0f,	-1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+			-1.0f,	1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
+			1.0f,	-1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
 			1.0f,	1.0f,	0.0f,	0.0f,	0.0f,	0.0f,
 		};
 

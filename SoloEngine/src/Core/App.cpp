@@ -171,9 +171,6 @@ namespace Solo {
 		}
 	prevMousePee = mouseP;
 	
-	m_CameraPosition[0] = 0.0;
-	m_CameraPosition[1] = 0.0;
-	m_CameraPosition[2] = 0.0;
 
 	activeScene_->camera_->setRotation((float)m_CameraRotationY, (float)m_CameraRotationX);
 	activeScene_->camera_->setPosition(m_CameraPosition);

@@ -300,7 +300,7 @@ namespace Solo {
 			glUseProgram(shader);
 
 			location1 = glGetUniformLocation(shader, "u_Color");
-			glUniform4f(location1, 1.0, t, t, 1.0f);
+			glUniform4f(location1, 1.0f, t, t, 1.0f);
 
 
 			view = glm::mat4(1.0);
@@ -319,6 +319,9 @@ namespace Solo {
 
 			location5 = glGetUniformLocation(shader, "u_Tex");
 			glUniform1i(location5, texture->getHandle());
+
+			location6 = glGetUniformLocation(shader, "u_iResolution");
+			glUniform3f(location6, 1280.0f, 720.0f,1.0f); /////
 		}
 
 
@@ -489,7 +492,7 @@ namespace Solo {
 			//	moveCube(8, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
 			//	moveCube(9, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
 			//}
-
+			
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
 
@@ -518,7 +521,7 @@ namespace Solo {
 			glActiveTexture(GL_TEXTURE0 + 1); 
 			glBindTexture(GL_TEXTURE_2D, texture->getHandle());
 			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-			
+			//a;lkasd;lfjk
 			//model = glm::translate(model, glm::vec3(0, 1.1, 0));
 
 			//glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
@@ -527,7 +530,7 @@ namespace Solo {
 			//glBindTexture(GL_TEXTURE_2D, texture2->getHandle());
 			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 			//model = glm::translate(model, glm::vec3(0, -1.1, 0));
-			
+			//
 			{ // Draw all voxels in the voxel array
 
 
@@ -551,6 +554,7 @@ namespace Solo {
 				//glDepthMask(GL_TRUE);
 				
 			}
+			////
 
 			/*ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/

@@ -93,11 +93,11 @@ namespace Solo {
 
 		GamepadState gpState = {};
 
-		glm::dvec3 m_CameraPosition = glm::vec3(0., 80., 0.);
+		glm::dvec3 m_CameraPosition = glm::vec3(0.01, 0., 0.);
 		glm::dvec3 dir = glm::vec3(0., 0., 0.);
 		glm::vec2 prevMousePee = glm::vec2(0., 0.);
 
-		double m_CameraRotationY = 0;
+		double m_CameraRotationY = 0.01;
 		double m_CameraRotationX = 0;
 
 		double m_CameraVelocityZ = 0;
