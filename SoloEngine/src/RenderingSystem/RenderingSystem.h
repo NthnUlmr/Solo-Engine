@@ -60,6 +60,7 @@ namespace Solo {
 		glm::mat4x4 model = {};
 		glm::mat4x4 view = {};
 		glm::mat4x4 proj = {};
+		glm::vec3 eye_dir = {};
 		int width = 0;
 		int height = 0;
 		int oldwidth = 0;

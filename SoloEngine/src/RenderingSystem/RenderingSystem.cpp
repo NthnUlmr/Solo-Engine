@@ -306,15 +306,15 @@ namespace Solo {
 			view = glm::mat4(1.0);
 			view = glm::translate(view, glm::vec3(0.0, 0.0, 0.5));
 			view = glm::inverse(view);
-			location2 = glGetUniformLocation(shader, "u_View");
+			location2 = glGetUniformLocation(shader, "view");
 			glUniformMatrix4fv(location2, 1, GL_FALSE, &view[0].x);
 
 			proj = glm::mat4(1.0);
-			location3 = glGetUniformLocation(shader, "u_Proj");
+			location3 = glGetUniformLocation(shader, "proj");
 			glUniformMatrix4fv(location3, 1, GL_FALSE, &proj[0].x);
 
 			model = glm::mat4(1.0);
-			location4 = glGetUniformLocation(shader, "u_Model");
+			location4 = glGetUniformLocation(shader, "model");
 			glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 
 			location5 = glGetUniformLocation(shader, "u_Tex");
@@ -322,6 +322,12 @@ namespace Solo {
 
 			location6 = glGetUniformLocation(shader, "u_iResolution");
 			glUniform3f(location6, 1280.0f, 720.0f,1.0f); /////
+
+
+			glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 5.0f);
+			glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+			eye_dir = glm::normalize(cameraTarget - cameraPosition);
+			glUniform3fv(glGetUniformLocation(shader, "eye_dir"), 1, glm::value_ptr(eye_dir));
 		}
 
 
@@ -414,7 +420,7 @@ namespace Solo {
 			ImGui::NewFrame();
 			ImGui::ShowDemoWindow();*/
 
-			glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+			glClearColor(1.0f, 0.0f, .5f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 1, 0));
 			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 0, 1));
@@ -492,7 +498,7 @@ namespace Solo {
 			//	moveCube(8, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
 			//	moveCube(9, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
 			//}
-			
+			//
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
 
