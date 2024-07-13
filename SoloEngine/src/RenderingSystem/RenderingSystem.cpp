@@ -324,10 +324,15 @@ namespace Solo {
 			glUniform3f(location6, 1280.0f, 720.0f,1.0f); /////
 
 
-			glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 5.0f);
+			//cameraPosition = scene->camera_->getPosition();
+			glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition));
+
 			glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 			eye_dir = glm::normalize(cameraTarget - cameraPosition);
 			glUniform3fv(glGetUniformLocation(shader, "eye_dir"), 1, glm::value_ptr(eye_dir));
+
+
+			
 		}
 
 
@@ -400,7 +405,8 @@ namespace Solo {
 		view = scene->camera_->getView();
 		proj = scene->camera_->getProjection();
 
-		
+		cameraPosition = scene->camera_->getPosition();
+		glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition)); //
 
 		// Get all entities with a transform, a model, and a texture component
 		// These are non-voxel things
@@ -539,7 +545,7 @@ namespace Solo {
 			//
 			{ // Draw all voxels in the voxel array
 
-
+				//
 
 				glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 				glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);

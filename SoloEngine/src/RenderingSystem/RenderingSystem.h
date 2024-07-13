@@ -61,6 +61,7 @@ namespace Solo {
 		glm::mat4x4 view = {};
 		glm::mat4x4 proj = {};
 		glm::vec3 eye_dir = {};
+		glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 5.0f);//
 		int width = 0;
 		int height = 0;
 		int oldwidth = 0;
