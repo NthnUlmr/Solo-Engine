@@ -13,6 +13,7 @@ void main() {
     vec4 worldPos = model * vec4(aPos, 1.0);
     vertPos = worldPos.xyz; // Pass world position to fragment shader
     gl_Position = proj * view * worldPos;
+    gl_Position = vec4(aPos, 1.0);
 }
 
 
@@ -34,7 +35,7 @@ out vec4 color; // Output color of the fragment
 #define AA 1   // make this 2 or 3 for antialiasing
 #endif
 
-#define ZERO (min(iFrame,0))
+#define ZERO (min(1,0))
 
 //------------------------------------------------------------------
 float dot2(in vec2 v) { return dot(v, v); }
@@ -74,13 +75,6 @@ vec2 opU(vec2 d1, vec2 d2)
     return (d1.x < d2.x) ? d1 : d2;
 }
 
-
-float sdfVoxelCube(vec3 p, vec3 b, float size) {
-    vec3 d = abs(p - b) - vec3(size);
-    return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
-}
-
-
 vec2 map(in vec3 pos)
 {
     vec2 res = vec2(pos.y, 0.0);
@@ -94,54 +88,6 @@ vec2 map(in vec3 pos)
         }
 
     }
-
-    //res = opU(res, vec2(sdfVoxelCube(         pos-vec3( 1.21,0.25, 0.0), vec3(0.3,0.25,0.1), 0.1f ), 3.0 ));
-
-    //if( sdBox( pos-vec3(-2.0,0.3,0.25),vec3(0.3,0.3,1.0) )<res.x )
-    //{
-    //  res = opU( res, vec2( sdSphere(    pos-vec3(-2.0,0.25, 0.0), 0.25 ), 26.9 ) );
-    //  res = opU( res, vec2( sdRhombus(  (pos-vec3(-2.0,0.25, 1.0)).xzy, 0.15, 0.25, 0.04, 0.08 ),17.0 ) );
-    //}
-
-    // bounding box
-    //if( sdBox( pos-vec3(0.0,0.3,-1.0),vec3(0.35,0.3,2.5) )<res.x )
-    //{
-    //res = opU( res, vec2( sdCappedTorus((pos-vec3( 0.0,0.30, 1.0))*vec3(1,-1,1), vec2(0.866025,-0.5), 0.25, 0.05), 25.0) );
-    //res = opU( res, vec2( sdBoxFrame(    pos-vec3( 0.0,0.25, 0.0), vec3(0.3,0.25,0.2), 0.025 ), 16.9 ) );
-    //res = opU( res, vec2( sdCone(        pos-vec3( 0.0,0.45,-1.0), vec2(0.6,0.8),0.45 ), 55.0 ) );
-    //res = opU( res, vec2( sdCappedCone(  pos-vec3( 0.0,0.25,-2.0), 0.25, 0.25, 0.1 ), 13.67 ) );
-    //res = opU( res, vec2( sdSolidAngle(  pos-vec3( 0.0,0.00,-3.0), vec2(3,4)/5.0, 0.4 ), 49.13 ) );
-    //}
-
-    // bounding box
-    //if( sdBox( pos-vec3(1.0,0.3,-1.0),vec3(0.35,0.3,2.5) )<res.x )
-    //{
-    //res = opU( res, vec2( sdTorus(      (pos-vec3( 1.0,0.30, 1.0)).xzy, vec2(0.25,0.05) ), 7.1 ) );
-    //res = opU( res, vec2( sdBox(         pos-vec3( 1.0,0.25, 0.0), vec3(0.3,0.25,0.1) ), 3.0 ) );
-    //res = opU( res, vec2( sdCapsule(     pos-vec3( 1.0,0.00,-1.0),vec3(-0.1,0.1,-0.1), vec3(0.2,0.4,0.2), 0.1  ), 31.9 ) );
-    //res = opU( res, vec2( sdCylinder(    pos-vec3( 1.0,0.25,-2.0), vec2(0.15,0.25) ), 8.0 ) );
-    //res = opU( res, vec2( sdHexPrism(    pos-vec3( 1.0,0.2,-3.0), vec2(0.2,0.05) ), 18.4 ) );
-    //}
-
-    // bounding box
-    //if( sdBox( pos-vec3(-1.0,0.35,-1.0),vec3(0.35,0.35,2.5))<res.x )
-    //{
-    //res = opU( res, vec2( sdPyramid(    pos-vec3(-1.0,-0.6,-3.0), 1.0 ), 13.56 ) );
-    //res = opU( res, vec2( sdOctahedron( pos-vec3(-1.0,0.15,-2.0), 0.35 ), 23.56 ) );
-    //res = opU( res, vec2( sdTriPrism(   pos-vec3(-1.0,0.15,-1.0), vec2(0.3,0.05) ),43.5 ) );
-    //res = opU( res, vec2( sdEllipsoid(  pos-vec3(-1.0,0.25, 0.0), vec3(0.2, 0.25, 0.05) ), 43.17 ) );
-    //res = opU( res, vec2( sdHorseshoe(  pos-vec3(-1.0,0.25, 1.0), vec2(cos(1.3),sin(1.3)), 0.2, 0.3, vec2(0.03,0.08) ), 11.5 ) );
-    //}
-
-    // bounding box
-    //if( sdBox( pos-vec3(2.0,0.3,-1.0),vec3(0.35,0.3,2.5) )<res.x )
-    //{
-    //res = opU( res, vec2( sdOctogonPrism(pos-vec3( 2.0,0.2,-3.0), 0.2, 0.05), 51.8 ) );
-    //res = opU( res, vec2( sdCylinder(    pos-vec3( 2.0,0.14,-2.0), vec3(0.1,-0.1,0.0), vec3(-0.2,0.35,0.1), 0.08), 31.2 ) );
-    //res = opU( res, vec2( sdCappedCone(  pos-vec3( 2.0,0.09,-1.0), vec3(0.1,0.0,0.0), vec3(-0.2,0.40,0.1), 0.15, 0.05), 46.1 ) );
-    //res = opU( res, vec2( sdRoundCone(   pos-vec3( 2.0,0.15, 0.0), vec3(0.1,0.0,0.0), vec3(-0.1,0.35,0.1), 0.15, 0.05), 51.7 ) );
-    //res = opU( res, vec2( sdRoundCone(   pos-vec3( 2.0,0.20, 1.0), 0.2, 0.1, 0.3 ), 37.0 ) );
-   // }
 
     return res;
 }
@@ -345,17 +291,61 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
 
 
 void main() {
-    vec3 box_pos = vec3(0.0f, 0.0f, 10.0f); // Center of the voxel cube
-    float box_size = 0.5f;                  // Size of the voxel cube
+    //vec3 box_pos = vec3(0.0f, 0.0f, 10.0f); // Center of the voxel cube
+    //float box_size = 0.5f;                  // Size of the voxel cube
 
-    vec2 uv = (gl_FragCoord.xy / vec2(1280.0f, 720.0f)) * 2.0 - 1.0;
-    uv.x *= 1280.0f / 720.0f; 
+    //vec2 uv = (gl_FragCoord.xy / vec2(1280.0f, 720.0f)) * 2.0 - 1.0;
+    //uv.x *= 1280.0f / 720.0f; 
 
-    vec3 ro = cameraPos; // Ray Origin
-    vec3 rd = normalize(vec3(uv, -1.0)); // Ray Direction
+    //vec3 ro = cameraPos; // Ray Origin
+    //vec3 rd = normalize(vec3(uv, -1.0)); // Ray Direction
 
-    rd = (view * proj * vec4(rd, 0.0)).xyz;
+    //rd = (view * proj * vec4(rd, 0.0)).xyz;
 
 
-    color = vec4(0.0f,0.0f,0.0f,1.0f);
+    //color = vec4(0.0f,0.0f,0.0f,1.0f);
+
+
+
+
+    //vec2 mo = iMouse.xy / iResolution.xy;
+    float time = 32.0;// +iTime * 1.5;
+    vec2 iResolution = vec2(1280.0f, 720.0f);
+    vec2 fragCoord = gl_FragCoord.xy;
+
+    // camera	
+    vec3 ta = vec3(0.25, -0.75, -0.75);
+    vec3 ro = ta + vec3(4.5 * cos(0.1 * time), 2.2, 4.5 * sin(0.1 * time));
+    // camera-to-world transformation
+    mat3 ca = setCamera(ro, ta, 0.0);
+
+    vec3 tot = vec3(0.0);
+    vec2 p = (2.0 * fragCoord - iResolution.xy) / iResolution.y;
+
+    // focal length
+    const float fl = 2.5;
+
+    // ray direction
+    vec3 rd = ca * normalize(vec3(p, fl));
+
+    // ray differentials
+    vec2 px = (2.0 * (fragCoord + vec2(1.0, 0.0)) - iResolution.xy) / iResolution.y;
+    vec2 py = (2.0 * (fragCoord + vec2(0.0, 1.0)) - iResolution.xy) / iResolution.y;
+    vec3 rdx = ca * normalize(vec3(px, fl));
+    vec3 rdy = ca * normalize(vec3(py, fl));
+
+    // render	
+    vec3 col = render(ro, rd, rdx, rdy);
+
+    // gain
+    // col = col*3.0/(2.5+col);
+
+    // gamma
+    col = pow(col, vec3(0.4545));
+
+    tot += col;
+
+    color = vec4(tot, 1.0);
+    //color = vec4(1.0, 1.0, 1.0, 1.0);
+
 }

@@ -293,7 +293,7 @@ namespace Solo {
 			texture->bind();
 
 			glActiveTexture(GL_TEXTURE0 + 2);
-			texture2 = new Texture(basePath + "grenuk2.PNG");
+			texture2 = new Texture(basePath + "grenuk2.PNG");//
 			texture2->bind();
 
 			shader = createShader(vertexShader, fragShader);
@@ -426,7 +426,7 @@ namespace Solo {
 			ImGui::NewFrame();
 			ImGui::ShowDemoWindow();*/
 
-			glClearColor(1.0f, 0.0f, .5f, 1.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 1, 0));
 			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 0, 1));
