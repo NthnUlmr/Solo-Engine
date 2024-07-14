@@ -315,24 +315,27 @@ void main() {
 
     // camera	
     vec3 ta = vec3(0.25, -0.75, -0.75);
-    vec3 ro = ta + vec3(4.5 * cos(0.1 * time), 2.2, 4.5 * sin(0.1 * time));
+    vec3 ro = cameraPos;// ta + vec3(4.5 * cos(0.1 * time), 2.2, 4.5 * sin(0.1 * time));
     // camera-to-world transformation
     mat3 ca = setCamera(ro, ta, 0.0);
-
+    
     vec3 tot = vec3(0.0);
     vec2 p = (2.0 * fragCoord - iResolution.xy) / iResolution.y;
 
     // focal length
     const float fl = 2.5;
 
+
+    mat4 transView = transpose(view);
+
     // ray direction
-    vec3 rd = ca * normalize(vec3(p, fl));
+    vec3 rd = (transView *  normalize(vec4(p, fl,1.0))).xyz;
 
     // ray differentials
     vec2 px = (2.0 * (fragCoord + vec2(1.0, 0.0)) - iResolution.xy) / iResolution.y;
     vec2 py = (2.0 * (fragCoord + vec2(0.0, 1.0)) - iResolution.xy) / iResolution.y;
-    vec3 rdx = ca * normalize(vec3(px, fl));
-    vec3 rdy = ca * normalize(vec3(py, fl));
+    vec3 rdx = (transView * normalize(vec4(px, fl, 1.0))).xyz;
+    vec3 rdy = (transView * normalize(vec4(py, fl, 1.0))).xyz;
 
     // render	
     vec3 col = render(ro, rd, rdx, rdy);

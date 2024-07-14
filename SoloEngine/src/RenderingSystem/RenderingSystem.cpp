@@ -406,7 +406,7 @@ namespace Solo {
 		proj = scene->camera_->getProjection();
 
 		cameraPosition = scene->camera_->getPosition();
-		glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition)); //
+		glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition)); 
 
 		// Get all entities with a transform, a model, and a texture component
 		// These are non-voxel things

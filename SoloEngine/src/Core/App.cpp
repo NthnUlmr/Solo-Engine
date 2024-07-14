@@ -90,28 +90,28 @@ namespace Solo {
 
 			if (InputManager::IsKeyPressedOrHeld(Key::W))
 			{
-				m_CameraPosition[0] -= -sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] -= cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] += sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] += cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 			if (InputManager::IsKeyPressedOrHeld(Key::A))
 			{
-				m_CameraPosition[0] -= cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] -= sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] -= cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] -= -sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 
 			if (InputManager::IsKeyPressedOrHeld(Key::S))
 			{
-				m_CameraPosition[0] += -sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] += cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] -= sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] -= cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 
 			if (InputManager::IsKeyPressedOrHeld(Key::D))
 			{
-				m_CameraPosition[0] += cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] += sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] += cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] += -sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 
@@ -122,7 +122,7 @@ namespace Solo {
 			}
 
 			m_CameraPosition[1] += m_CameraVelocityZ * diff;
-			m_CameraPosition[1] = std::clamp(m_CameraPosition[1], 16.0, 999.0);
+			m_CameraPosition[1] = std::clamp(m_CameraPosition[1], 1.0, 999.0);
 
 			if (m_CameraPosition[1] > 0.0)
 			{
@@ -136,8 +136,8 @@ namespace Solo {
 
 			if (prevMousePee[0] != 0.0)
 			{
-				m_CameraRotationX -= ((mouseP[0] - prevMousePee[0]) * mouseXScale * mouseHorzSensitivity);
-				m_CameraRotationY -= ((mouseP[1] - prevMousePee[1]) * mouseYScale * mouseVertSensitivity);
+				m_CameraRotationX += ((mouseP[0] - prevMousePee[0]) * mouseXScale * mouseHorzSensitivity);
+				m_CameraRotationY += ((mouseP[1] - prevMousePee[1]) * mouseYScale * mouseVertSensitivity);
 				m_CameraRotationY = std::clamp(m_CameraRotationY, -89., 89.);
 			}
 
