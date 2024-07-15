@@ -6,6 +6,7 @@
 #include <glm/ext.hpp>
 #include "Image.h"
 #include "Texture.h"
+#include "Texture3D.h"
 #include "ShaderPipeline.h"
 #include "Window.h"
 #include "CubeMap.h"
@@ -25,13 +26,7 @@ namespace Solo {
 		~RenderingSystem() = default;
 	protected:
 	private:
-		
 
-		void generateCube(double objIdx, double wposx, double wposy, double wposz, double red, double blue, double green);
-		void generateRectByCenter(double objIdx, double wposx, double wposy, double wposz, double width, double height);
-		void moveCube(double idx, double dx, double dy, double dz, double r, double g, double b);
-		bool checkCubeCollide(double idxa, double idxb);
-		bool checkCubeWallCollide(double idx);
 		float t = 0.0;
 		int location1 = 0;
 		int location2 = 0;
@@ -39,9 +34,11 @@ namespace Solo {
 		int location4 = 0;
 		int location5 = 0;
 		int location6 = 0;
+		int location7 = 0;
 
 		Texture* texture;
 		Texture* texture2;
+		Texture3D* voxelSdf;
 		CubeMap* skybox;
 
 		unsigned int shader = 0;

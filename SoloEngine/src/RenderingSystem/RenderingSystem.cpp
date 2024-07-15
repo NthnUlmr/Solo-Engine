@@ -180,7 +180,7 @@ namespace Solo {
 		//ShaderPipeline* texturedModel
 		//pipelines[0]->addShader(basePath + "basic.shader");
 		//pipelines[0]->addTexture(basePath + "grenuk.PNG");
-
+		////
 
 		{
 			glGenVertexArrays(1, &modelVao);
@@ -264,18 +264,18 @@ namespace Solo {
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 		glBindVertexArray(modelVao);
 		{
-			std::string vertexShader;
-			std::string fragShader;
-			readShader(basePath + "skybox.shader", vertexShader, fragShader);
-			Logger::Log("vertexShader: \n" + vertexShader, LogLevel::TRACE);
-			Logger::Log("fragShader: \n" + fragShader, LogLevel::TRACE);
+			//std::string vertexShader;
+			//std::string fragShader;
+			//readShader(basePath + "skybox.shader", vertexShader, fragShader);
+			//Logger::Log("vertexShader: \n" + vertexShader, LogLevel::TRACE);
+			//Logger::Log("fragShader: \n" + fragShader, LogLevel::TRACE);
 
-			glActiveTexture(GL_TEXTURE0);
-			skybox = new CubeMap(basePath + "skybox/");
-			skybox->bind();
+			//glActiveTexture(GL_TEXTURE0);
+			//skybox = new CubeMap(basePath + "skybox/");
+			//skybox->bind();
 
-			skyboxShader = createShader(vertexShader, fragShader);
-			glUseProgram(skyboxShader);
+			//skyboxShader = createShader(vertexShader, fragShader);
+			//glUseProgram(skyboxShader);
 		}
 
 
@@ -287,17 +287,23 @@ namespace Solo {
 			readShader(basePath + "basic.shader", vertexShader, fragShader);
 			Logger::Log("vertexShader: \n" + vertexShader, LogLevel::TRACE);
 			Logger::Log("fragShader: \n" + fragShader, LogLevel::TRACE);
-
-			glActiveTexture(GL_TEXTURE0 + 1);
-			texture = new Texture(basePath + "grenuk.PNG");
-			texture->bind();
-
-			glActiveTexture(GL_TEXTURE0 + 2);
-			texture2 = new Texture(basePath + "grenuk2.PNG");//
-			texture2->bind();
-
 			shader = createShader(vertexShader, fragShader);
 			glUseProgram(shader);
+
+			glActiveTexture(GL_TEXTURE0+1);
+			//texture = new Texture(basePath + "grenuk.PNG");
+			//texture->bind();
+
+			//glActiveTexture(GL_TEXTURE0 + 2);
+			//texture2 = new Texture(basePath + "grenuk2.PNG");//
+			//texture2->bind();
+
+			// TODO: Only 2D for now
+			//voxelSdf = new Texture3D(basePath + "exampleSdf.png"); //
+			voxelSdf = new Texture3D(basePath + "grenuk.PNG");
+			voxelSdf->bind();
+
+			
 
 			location1 = glGetUniformLocation(shader, "u_Color");
 			glUniform4f(location1, 1.0f, t, t, 1.0f);
@@ -317,11 +323,18 @@ namespace Solo {
 			location4 = glGetUniformLocation(shader, "model");
 			glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 
-			location5 = glGetUniformLocation(shader, "u_Tex");
-			glUniform1i(location5, texture->getHandle());
+			//location5 = glGetUniformLocation(shader, "u_Tex");
+			//glUniform1i(location5, texture->getHandle());
+
+
 
 			location6 = glGetUniformLocation(shader, "u_iResolution");
-			glUniform3f(location6, 1280.0f, 720.0f,1.0f); /////
+			glUniform2f(location6, 1280.0f, 720.0f);
+
+			location7 = glGetUniformLocation(shader, "sdfTexture");
+			glUniform1i(location7, 0);
+
+			std::cout << "+_)(+_)(+_)(+_)(  Texture Handle: " << voxelSdf->getHandle() << std::endl;
 
 
 			//cameraPosition = scene->camera_->getPosition();
@@ -334,9 +347,6 @@ namespace Solo {
 
 			
 		}
-
-
-
 
 		//IMGUI_CHECKVERSION();
 		//ImGui::CreateContext();
@@ -352,34 +362,6 @@ namespace Solo {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-		//generateCube(0,-worldLength / 2, worldHeight / 2 - 2, -50, 1.0, 1.0, 1.0);
-		//generateCube(1,-worldLength / 2, worldHeight / 2 - 1, -50, 1.0, 1.0, 1.0);
-		//generateCube(2,-worldLength / 2, worldHeight / 2, -50, 1.0, 1.0, 1.0);
-		//generateCube(3,-worldLength / 2, worldHeight / 2 + 1, -50, 1.0, 1.0, 1.0);
-		//generateCube(4,-worldLength / 2, worldHeight / 2 + 2, -50, 1.0, 1.0, 1.0);
-
-		//generateCube(5,worldLength / 2, worldHeight / 2 - 2, -50, 1.0, 1.0, 1.0);
-		//generateCube(6,worldLength / 2, worldHeight / 2 - 1, -50, 1.0, 1.0, 1.0);
-		//generateCube(7,worldLength / 2, worldHeight / 2, -50, 1.0, 1.0, 1.0);
-		//generateCube(8,worldLength / 2, worldHeight / 2 + 1, -50, 1.0, 1.0, 1.0);
-		//generateCube(9,worldLength / 2, worldHeight / 2 + 2, -50, 1.0, 1.0, 1.0);
-
-		//generateCube(10, 0.0, worldHeight / 2 + 2, -50, 1.0, 1.0, 1.0);
-
-		//generateRectByCenter(11, 0.0, worldHeight/2.0, -51.0, worldLength, worldHeight);
-
-		
-		//distribution = std::normal_distribution<double>(0.0, 1.0);
-
-		/*for (int ii = 0; ii < maxX; ii++)
-		{
-			for (int jj = 0; jj < maxY; jj++)
-			{
-				generateCube(ii + 11, ii, distribution(generator), jj, std::remainder((double)ii , divisor), std::remainder((double)jj, divisor), divisor - std::max(std::remainder(ii, divisor), std::remainder(jj, divisor)));
-			}
-		}*/
-
-
 		for (int ii = 0; ii < 24; ii ++)
 		{
 			vertexData.push_back(quadPositions[ii]);
@@ -390,7 +372,6 @@ namespace Solo {
 			indexData.push_back(quadIndices[ii]);
 		}
 		
-
 		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
 
@@ -401,18 +382,11 @@ namespace Solo {
 
 	bool RenderingSystem::update(std::shared_ptr<Scene> scene, const TimeStep& dt)
 	{
-		//scene->camera_->addRotation(0.0f, 0.01f);
 		view = scene->camera_->getView();
 		proj = scene->camera_->getProjection();
 
 		cameraPosition = scene->camera_->getPosition();
 		glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition)); 
-
-		// Get all entities with a transform, a model, and a texture component
-		// These are non-voxel things
-
-		// Get all entities with a transform, and a texture component
-		// These are voxels
 
 		t = t + 0.001f;
 		t = fmod(t, 1.0);
@@ -428,83 +402,9 @@ namespace Solo {
 
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 1, 0));
-			//model = glm::rotate(model, dt.GetSeconds(), glm::vec3(0, 0, 1));
-
-			
-			paddleDirection = 0;
-			if(InputManager::IsKeyPressedOrHeld(Key::E))
-			{
-				paddleDirection += 1; // up
-			}
-
-			if (InputManager::IsKeyPressedOrHeld(Key::Q))
-			{
-				paddleDirection += -1; // down
-			}
-	
 
 			generator.seed(distribution(generator));
 
-			/*for (int ii = 0; ii < maxX; ii++)
-			{
-				for (int jj = 0; jj < maxY; jj++)
-				{
-					moveCube(ii + 11, 0.0, -1.0, 0.0, std::remainder((double)ii, divisor), std::remainder((double)jj, divisor), divisor - std::max(std::remainder(ii, divisor), std::remainder(jj, divisor)));
-				}
-			}*/
-
-
-
-			//if (paddleDirection != 0.0)
-			//{
-			//	moveCube(0, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(1, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(2, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(3, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(4, 0.000f, dt.GetSeconds() * paddleSpeed * paddleDirection, 0.0, 0.0, 0.0, 0.0);
-			//}
-			//if (glm::length(ballVelocity) > 1e3)
-			//{
-			//	moveCube(10, ballVelocity.x / 1e12, ballVelocity.y / 1e12, ballVelocity.z / 1e12, 0.0f, 0.0f, 1.0);
-			//}
-			//// Check collision with middle of paddle
-			//if (checkCubeCollide(10, 7) || checkCubeCollide(10, 2) )
-			//{
-			//	ballVelocity.x = -1.5*ballVelocity.x;
-			//	ballVelocity.y = -1.5*ballVelocity.y;
-			//	ballVelocity.z = -ballVelocity.z;
-			//} // Top of paddle
-			//else if (checkCubeCollide(10, 5) || checkCubeCollide(10, 6)  || checkCubeCollide(10, 0) || checkCubeCollide(10, 1))
-			//{
-			//	ballVelocity.x = -0.9 * ballVelocity.x;
-			//	ballVelocity.y =  1.25*ballVelocity.y;
-			//	ballVelocity.z = -ballVelocity.z;
-			//} // Bottom of paddle
-			//else if (checkCubeCollide(10, 8) || checkCubeCollide(10, 9) || checkCubeCollide(10, 3) || checkCubeCollide(10, 4))
-			//{
-			//	ballVelocity.x = -0.9*ballVelocity.x;
-			//	ballVelocity.y = 1.25*ballVelocity.y;
-			//	ballVelocity.z = -ballVelocity.z;
-			//}
-			//else if (checkCubeWallCollide(10))
-			//{
-			//	ballVelocity.x = 1.05 * ballVelocity.x;
-			//	ballVelocity.y = -1.05 * ballVelocity.y;
-			//	ballVelocity.z = -ballVelocity.z;
-			//}
-			//ballVelocity.x = 0.99997 * ballVelocity.x;
-			//ballVelocity.y = 0.99997 * ballVelocity.y;
-			//if (glm::length(ballVelocity) > 1e3)
-			//{
-			//	// Move right paddle to align with ball y coord
-			//	moveCube(5, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(6, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(7, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(8, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			//	moveCube(9, 0.000f, ballVelocity.y / 1e12, 0.0, 0.0, 0.0, 0.0);
-			//}
-			//
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
 
@@ -515,6 +415,9 @@ namespace Solo {
 			glBindVertexArray(modelVao);
 			glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 			glUniformMatrix4fv(location2, 1, GL_FALSE, &view[0].x);
+
+
+			glUniform2f(location6, width, height);
 
 			if (( oldwidth != width || oldheight != height ) && width > 1e-5 && height > 1e-5)
 			{
@@ -529,11 +432,15 @@ namespace Solo {
 
 			glUniform4f(location1, 1.0f, t, 1.0f-t, 1.0f);
 
-			glUniform1i(location5, texture->getHandle());
-			glActiveTexture(GL_TEXTURE0 + 1); 
-			glBindTexture(GL_TEXTURE_2D, texture->getHandle());
+			//glUniform1i(location5, texture->getHandle());
+			//glActiveTexture(GL_TEXTURE0); 
+			//glBindTexture(GL_TEXTURE_2D, texture->getHandle());
+
+			glUniform1i(location7, voxelSdf->getHandle());
+			glActiveTexture(GL_TEXTURE0+1); //
+			glBindTexture(GL_TEXTURE_3D, voxelSdf->getHandle());
+
 			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-			//a;lkasd;lfjk
 			//model = glm::translate(model, glm::vec3(0, 1.1, 0));
 
 			//glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
@@ -544,12 +451,11 @@ namespace Solo {
 			//model = glm::translate(model, glm::vec3(0, -1.1, 0));
 			//
 			{ // Draw all voxels in the voxel array
-
-				//
-
 				glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 				glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 			}
+
+
 
 			{ // Skybox here
 				//glDepthMask(GL_FALSE);
@@ -566,7 +472,7 @@ namespace Solo {
 				//glDepthMask(GL_TRUE);
 				
 			}
-			////
+			
 
 			/*ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
@@ -582,174 +488,6 @@ namespace Solo {
 			glfwTerminate();
 			initialized = false;
 			return false;
-		}
-
-	}
-
-
-
-	void RenderingSystem::generateCube(double objIdx, double wposx, double wposy, double wposz, double red, double green, double blue)
-	{
-		double startIndex = (vertexData.size() / 6);
-		if(startIndex > 1e15)
-		{
-			startIndex = 0;
-		}
-		// Generate Vertices for Cube
-		for (int ip = 0; ip < 48; ip++)
-		{
-			int res = ip % 6;
-			if (res == 0)
-			{
-				vertexData.push_back(positions[ip] + wposx);
-			}
-			else if (res == 1)
-			{
-				vertexData.push_back(positions[ip] + wposy);
-			}
-			else if (res == 2)
-			{
-				vertexData.push_back(positions[ip] + wposz);
-			}
-			else if (res == 3)
-			{
-				vertexData.push_back(red);
-			}
-			else if (res == 4)
-			{
-				vertexData.push_back(green);
-			}
-			else if (res == 5)
-			{
-				vertexData.push_back(blue);
-			}
-			objectVertexIndex.push_back(objIdx);
-		}
-
-		for (int ii = 0; ii < 36; ii++)
-		{
-			indexData.push_back(indices[ii] + startIndex);
-			objectIndex.push_back(objIdx);
-		}
-	}
-
-	void RenderingSystem::moveCube(double idx, double dx, double dy, double dz, double r, double g, double b)
-	{
-		// This is garbage for large vertexData lists lmao don't do this
-		int numVinV = 6;
-		int numVInCube = 36* numVinV;
-		int mindex = idx * numVInCube;
-		int maxdex = (idx * numVInCube + numVInCube);
-		for (int vertId = mindex; vertId + numVinV-1 < maxdex; vertId += numVinV) // 5 is width of rows in vertex, 
-		{
-			if (objectVertexIndex.at(vertId) == idx)
-			{
-				vertexData.at(vertId) += dx;
-				vertexData.at(vertId + 1) += dy;
-				vertexData.at(vertId + 2) += dz;
-				vertexData.at(vertId + 3) = r;
-				vertexData.at(vertId + 4) = g;
-				vertexData.at(vertId + 5) = b;
-			}
-		}
-
-	}
-
-	bool RenderingSystem::checkCubeCollide(double idxa, double idxb)
-	{
-		return false;
-		glm::vec3 vertexASum = { 0.0,0.0,0.0 };
-		glm::vec3 vertexBSum = { 0.0,0.0,0.0 };
-		double vertACount = 0.0;
-		double vertBCount = 0.0;
-		// This is garbage for large vertexData lists lmao don't do this
-		// OOPSie
-		int numVinV = 6;
-		int numVInCube = 36* numVinV;
-		int stidx = std::min(idxa, idxb)* numVInCube;
-		int endx = std::max(idxa, idxb) * numVInCube + numVInCube;
-		for (int vertId = stidx; vertId + 2 < endx; vertId += numVinV) // 5 is width of rows in vertex, 
-		{
-			if (objectVertexIndex.at(vertId) == idxa)
-			{
-				vertexASum = vertexASum + glm::vec3(vertexData.at(vertId), vertexData.at(vertId + 1), vertexData.at(vertId + 2) );
-				vertACount++;
-			}
-
-			if (objectVertexIndex.at(vertId) == idxb)
-			{
-				vertexBSum = vertexBSum + glm::vec3(vertexData.at(vertId), vertexData.at(vertId + 1), vertexData.at(vertId + 2));
-				vertBCount++;
-			}
-		}
-
-		glm::vec3 vertexAAvg = { vertexASum.x/ vertACount, vertexASum.y / vertACount, vertexASum.z / vertACount, };
-		glm::vec3 vertexBAvg = { vertexBSum.x / vertBCount, vertexBSum.y / vertBCount, vertexBSum.z / vertBCount, };
-
-		glm::vec3 vertDiff = vertexAAvg - vertexBAvg;
-		double distance = glm::length(vertDiff);
-
-		if (distance < 1.0) // Assume cubes each have 'radius' of 0.5 not a valid assumption but whatever lol
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-
-	}
-
-	bool RenderingSystem::checkCubeWallCollide(double idx)
-	{
-		return false;
-		bool res = false;
-		// This is garbage for large vertexData lists lmao don't do this
-		for (int vertId = 0; vertId + 2 < vertexData.size(); vertId += 6) // 5 is width of rows in vertex, 
-		{
-			if (objectVertexIndex.at(vertId) == idx)
-			{
-				res = res || (vertexData.at(vertId + 1) < 0.0) || (vertexData.at(vertId+1) > worldHeight);
-			}
-		}
-
-		return res;
-	}
-
-	void RenderingSystem::generateRectByCenter(double objIdx, double wposx, double wposy, double wposz, double width, double height)
-	{
-		double startIndex = (vertexData.size() / 6);
-		if (startIndex > 1e15)
-		{
-			startIndex = 0;
-		}
-		// Generate Vertices for Cube
-		for (int ip = 0; ip < 48; ip++)
-		{
-			int res = ip % 6;
-			if (res == 0)
-			{
-				vertexData.push_back(positions[ip]*width + wposx);
-			}
-			else if (res == 1)
-			{
-				vertexData.push_back(positions[ip]*height + wposy);
-			}
-			else if (res == 2)
-			{
-				vertexData.push_back(positions[ip] + wposz);
-			}
-			else
-			{
-				vertexData.push_back(0.5);
-			}
-			objectVertexIndex.push_back(objIdx);
-		}
-
-		for (int ii = 0; ii < 36; ii++)
-		{
-			indexData.push_back(indices[ii] + startIndex);
-			objectIndex.push_back(objIdx);
 		}
 
 	}

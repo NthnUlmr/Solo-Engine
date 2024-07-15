@@ -88,6 +88,17 @@ namespace Solo {
 		if (processInput)
 		{
 
+
+			if (InputManager::IsKeyPressedOrHeld(Key::LeftShift))
+			{
+				keyBoardSensitivity = 1.0;
+			}
+			else
+			{
+				keyBoardSensitivity = 5.0;
+			}
+
+
 			if (InputManager::IsKeyPressedOrHeld(Key::W))
 			{
 				m_CameraPosition[0] += sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
@@ -122,7 +133,7 @@ namespace Solo {
 			}
 
 			m_CameraPosition[1] += m_CameraVelocityZ * diff;
-			m_CameraPosition[1] = std::clamp(m_CameraPosition[1], 1.0, 999.0);
+			m_CameraPosition[1] = std::clamp(m_CameraPosition[1], 1.78, 999.0);
 
 			if (m_CameraPosition[1] > 0.0)
 			{

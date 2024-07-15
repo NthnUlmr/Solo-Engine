@@ -4,6 +4,8 @@ target_sources(SoloEngine PUBLIC
 "Image.cpp"
 "Texture.h"
 "Texture.cpp"
+"Texture3D.h"
+"Texture3D.cpp"
 "Uniform.h"
 "Uniform.cpp"
 "Shader.h"

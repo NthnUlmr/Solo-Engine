@@ -9,6 +9,9 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
+
+
+
 void main() {
     vec4 worldPos = model * vec4(aPos, 1.0);
     vertPos = worldPos.xyz; // Pass world position to fragment shader
@@ -26,6 +29,9 @@ in vec3 vertPos; // Interpolated vertex position
 uniform mat4 view;
 uniform mat4 proj;
 uniform vec3 cameraPos;
+uniform vec2 u_iResolution;
+
+uniform sampler3D sdfTexture;
 
 out vec4 color; // Output color of the fragment
 
@@ -43,9 +49,17 @@ float dot2(in vec3 v) { return dot(v, v); }
 float ndot(in vec2 a, in vec2 b) { return a.x * b.x - a.y * b.y; }
 
 
-
+// p = raypos
+// b = boxpos
+// size = size
 float sdfVoxelCube(vec3 p, vec3 b, float size) {
     vec3 d = abs(p - b) - vec3(size);
+    return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
+}
+
+float sdBox(vec3 p, vec3 b)
+{
+    vec3 d = abs(p) - b;
     return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
@@ -75,19 +89,87 @@ vec2 opU(vec2 d1, vec2 d2)
     return (d1.x < d2.x) ? d1 : d2;
 }
 
-vec2 map(in vec3 pos)
+const bool voxels[8] = bool[8](false,true,false,false,false,false,true,false);
+const float colors[8] = float[8](3.0,2.0,3.0,2.0,3.0,2.0,3.0, 2.0);
+
+// Returns the distance to the nearest object and that object's material id
+vec2 map(in vec3 pos, in vec3 chunkOrigin, in vec3 chunkExtent)
 {
     vec2 res = vec2(pos.y, 0.0);
 
     // bounding box
-    for (float ii = 0.0f; ii < 50.0f; ii++)
-    {
-        for (float jj = 0.0f; jj < 6.0f; jj++)
-        {
-            res = opU(res, vec2(sdfVoxelCube(pos - vec3(ii / 10.0, 0.4, jj / 10.0), vec3(0.3, 0.25, 0.1), 0.1f / 3.0), ii / jj));
-        }
 
+    //, vec3(0.0,0.0,0.0), vec3(10.0,10.0,10.0)
+    float yOffset = 0.2;
+    float bSize = 1.0 / 16.0;
+    //if (within(pos, vec3(0.0, yOffset, 0.0)))
+    //{
+    //    res = opU(res, vec2(sdfVoxelCube(pos, vec3(0.0, yOffset, 0.0), bSize), ii / jj));
+    //}
+
+    // Say there is some datastructure which stores voxel positions and materials. 
+    // We know the ray can only interact with voxels within like 1/8th of a meter of it
+    // So we just need to index the data structure at the ray position and neighbors
+
+    //if (sdBox(pos - vec3(0.0, bSize, 0.0), vec3(0.5,1.0,2.0- bSize)) < res.x)
+    //{
+
+    //    for (float ii = -0.5f; ii < 0.5f; ii += bSize)
+    //    {
+    //        for (float jj = -0.5f; jj < 0.5f; jj += bSize)
+    //        {
+    //            for (float kk = 0.0f + bSize; kk <= 2.f; kk ++)
+    //            {
+    //                res = opU(res, vec2(sdfVoxelCube(pos, vec3(ii, kk, jj), bSize * 0.5f), ii / jj + 1.5 + 2.5));
+    //            }
+    //        }
+
+    //    }
+    //}
+
+    vec3 distToOrigin = abs(pos - chunkOrigin);
+
+    if ((distToOrigin.x < chunkExtent.x) && (distToOrigin.y < chunkExtent.y) && (distToOrigin.z < chunkExtent.z))
+    {
+        vec4 tmpRes = texture(sdfTexture, distToOrigin + (0.5f * chunkExtent));
+        res = opU(res, vec2(tmpRes.r, tmpRes.a));
     }
+
+    /*if (sdBox(pos - vec3(0.25, bSize, 0.0), vec3(0.25, 1.0, 2.0- bSize)) < res.x)
+    {
+
+        for (float ii = 0f; ii <= 0.5f; ii += bSize)
+        {
+            for (float jj = -0.5f; jj < 0.5f; jj += bSize)
+            {
+                for (float kk = 0.0f + bSize; kk <= 2.f; kk++)
+                {
+                    res = opU(res, vec2(sdfVoxelCube(pos, vec3(ii, kk, jj), bSize * 0.5f), ii / jj + 1.5 + 2.5));
+                }
+            }
+
+        }
+    }*/
+
+   /* float xid = floor(pos.x);
+    float yid = floor(pos.y);
+    float zid = floor(pos.z);
+
+    bool valid = sdfVoxelCube(pos, vec3(1.0,1.0,1.0),1.0f) <= 0.0;
+
+    if (valid)
+    {
+        int idx = int(int(pos.x) + int(pos.y) * 2 + int(pos.z) * 2 * 2);
+        idx = clamp(idx, 0, 7);
+        if (bool(voxels[idx]))
+        {
+            res = opU(res, vec2(sdfVoxelCube(pos, vec3(1.0, 1.0, 1.0), 0.5f), colors[idx]));
+
+        }
+    }*/
+
+
+    //res = opU(res, vec2(sdfVoxelCube(pos, vec3(0.0,1.5,0.0), 0.5f), colors[1]));
 
     return res;
 }
@@ -100,7 +182,7 @@ float calcAO(in vec3 pos, in vec3 nor)
     for (int i = ZERO; i < 5; i++)
     {
         float h = 0.01 + 0.12 * float(i) / 4.0;
-        float d = map(pos + h * nor).x;
+        float d = map(pos + h * nor, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x;
         occ += (h - d) * sca;
         sca *= 0.95;
         if (occ > 0.35) break;
@@ -119,7 +201,7 @@ float calcSoftshadow(in vec3 ro, in vec3 rd, in float mint, in float tmax)
     float t = mint;
     for (int i = ZERO; i < 24; i++)
     {
-        float h = map(ro + rd * t).x;
+        float h = map(ro + rd * t, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x;
         float s = clamp(8.0 * h / t, 0.0, 1.0);
         res = min(res, s);
         t += clamp(h, 0.01, 0.2);
@@ -145,8 +227,8 @@ vec2 raycast(in vec3 ro, in vec3 rd)
 {
     vec2 res = vec2(-1.0, -1.0);
 
-    float tmin = 1.0;
-    float tmax = 20.0;
+    float tmin = 0.001;
+    float tmax = 2000.0;
 
     // raytrace floor plane
     float tp1 = (0.0 - ro.y) / rd.y;
@@ -158,17 +240,17 @@ vec2 raycast(in vec3 ro, in vec3 rd)
     //else return res;
 
     // raymarch primitives   
-    vec2 tb = iBox(ro - vec3(0.0, 0.4, -0.5), rd, vec3(2.5, 0.41, 3.0));
-    if (tb.x < tb.y && tb.y>0.0 && tb.x < tmax)
+    //vec2 tb = iBox(ro - vec3(0.0, 10.0, -0.5), rd, vec3(2.5, 10.0, 3.0));
+    //if (tb.x < tb.y && tb.y>0.0 && tb.x < tmax)
     {
         //return vec2(tb.x,2.0);
-        tmin = max(tb.x, tmin);
-        tmax = min(tb.y, tmax);
+        //tmin = max(tb.x, tmin);
+        //tmax = min(tb.y, tmax);
 
         float t = tmin;
         for (int i = 0; i < 70 && t < tmax; i++)
         {
-            vec2 h = map(ro + rd * t);
+            vec2 h = map(ro + rd * t, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0));
             if (abs(h.x) < (0.0001 * t))
             {
                 res = vec2(t, h.y);
@@ -187,17 +269,17 @@ vec3 calcNormal(in vec3 pos)
 {
 #if 0
     vec2 e = vec2(1.0, -1.0) * 0.5773 * 0.0005;
-    return normalize(e.xyy * map(pos + e.xyy).x +
-        e.yyx * map(pos + e.yyx).x +
-        e.yxy * map(pos + e.yxy).x +
-        e.xxx * map(pos + e.xxx).x);
+    return normalize(e.xyy * map(pos + e.xyy, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x +
+        e.yyx * map(pos + e.yyx, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x +
+        e.yxy * map(pos + e.yxy, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x +
+        e.xxx * map(pos + e.xxx, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x);
 #else
     // inspired by tdhooper and klems - a way to prevent the compiler from inlining map() 4 times
     vec3 n = vec3(0.0);
     for (int i = ZERO; i < 4; i++)
     {
         vec3 e = 0.5773 * (2.0 * vec3((((i + 3) >> 1) & 1), ((i >> 1) & 1), (i & 1)) - 1.0);
-        n += e * map(pos + 0.0005 * e).x;
+        n += e * map(pos + 0.0005 * e, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x;
         //if( n.x+n.y+n.z>100.0 ) break;
     }
     return normalize(n);
@@ -283,7 +365,7 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
 
         col = lin;
 
-        col = mix(col, vec3(0.7, 0.7, 0.9), 1.0 - exp(-0.0001 * t * t * t));
+        col = mix(col, vec3(0.7, 0.7, 0.9), 1.0 - exp(-0.0000001 * t * t * t));
     }
 
     return vec3(clamp(col, 0.0, 1.0));
@@ -291,31 +373,15 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
 
 
 void main() {
-    //vec3 box_pos = vec3(0.0f, 0.0f, 10.0f); // Center of the voxel cube
-    //float box_size = 0.5f;                  // Size of the voxel cube
-
-    //vec2 uv = (gl_FragCoord.xy / vec2(1280.0f, 720.0f)) * 2.0 - 1.0;
-    //uv.x *= 1280.0f / 720.0f; 
-
-    //vec3 ro = cameraPos; // Ray Origin
-    //vec3 rd = normalize(vec3(uv, -1.0)); // Ray Direction
-
-    //rd = (view * proj * vec4(rd, 0.0)).xyz;
-
-
-    //color = vec4(0.0f,0.0f,0.0f,1.0f);
-
-
-
-
-    //vec2 mo = iMouse.xy / iResolution.xy;
-    float time = 32.0;// +iTime * 1.5;
-    vec2 iResolution = vec2(1280.0f, 720.0f);
+   
+    float time = 32.0;
+    vec2 iResolution = u_iResolution;
     vec2 fragCoord = gl_FragCoord.xy;
 
     // camera	
     vec3 ta = vec3(0.25, -0.75, -0.75);
-    vec3 ro = cameraPos;// ta + vec3(4.5 * cos(0.1 * time), 2.2, 4.5 * sin(0.1 * time));
+    vec3 ro = cameraPos;
+
     // camera-to-world transformation
     mat3 ca = setCamera(ro, ta, 0.0);
     
@@ -324,7 +390,6 @@ void main() {
 
     // focal length
     const float fl = 2.5;
-
 
     mat4 transView = transpose(view);
 
@@ -349,6 +414,6 @@ void main() {
     tot += col;
 
     color = vec4(tot, 1.0);
-    //color = vec4(1.0, 1.0, 1.0, 1.0);
 
+    //color = texture(sdfTexture, vec3(p,.0));
 }
