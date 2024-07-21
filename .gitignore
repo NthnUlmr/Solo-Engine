@@ -90,3 +90,4 @@ _deps
 /SoloEngine/vendor/glew-2.1.0/doc
 /bin/Release
 /referencePapers
+/SoloEditor/res/.idea

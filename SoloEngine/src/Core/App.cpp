@@ -38,6 +38,10 @@ namespace Solo {
 		double timeSinceLastLog = 0.0;
 		double logRate = 2.0; // Hz
 		double logInterval = 1.0 / logRate; // sec
+
+		double frameRate = 120.0;
+		double frameInterval = 1.0 / frameRate;
+
 		double currentFrameCount = 0;
 		while (isRunning) {
 			if (!activeScene_) continue;
@@ -45,30 +49,33 @@ namespace Solo {
 			long long time = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 			TimeStep timestep = static_cast<long long>(time - timeLastFrameMS_);
 
-			CameraController(timestep);
-
-			
-			activeScene_->update();
-			audioSystem_->update(activeScene_, timestep);
-			Logger::Log("RenderingSystem::update() Entered", LogLevel::INSANE);
-
-			for (auto layer : appLayerStack)
+			if (timestep.GetSeconds() > frameInterval)
 			{
-				layer->OnUpdate(timestep);
-			}
+				CameraController(timestep);
 
-			isRunning = isRunning 
+
+				activeScene_->update();
+				audioSystem_->update(activeScene_, timestep);
+				Logger::Log("RenderingSystem::update() Entered", LogLevel::INSANE);
+
+				for (auto layer : appLayerStack)
+				{
+					layer->OnUpdate(timestep);
+				}
+
+				isRunning = isRunning
 					&& renderingSystem_->update(activeScene_, timestep);
-			timeLastFrameMS_ = time;
+				timeLastFrameMS_ = time;
 
-			timeSinceLastLog += timestep.GetSeconds();
-			currentFrameCount++;
-			if (timeSinceLastLog >= logInterval)
-			{
-				
-				std::cout << "FPS : " << currentFrameCount / timeSinceLastLog << std::endl;
-				timeSinceLastLog = 0.0;
-				currentFrameCount = 0.0;
+				timeSinceLastLog += timestep.GetSeconds();
+				currentFrameCount++;
+				if (timeSinceLastLog >= logInterval)
+				{
+
+					std::cout << "FPS : " << currentFrameCount / timeSinceLastLog << std::endl;
+					timeSinceLastLog = 0.0;
+					currentFrameCount = 0.0;
+				}
 			}
 
 		}
@@ -91,11 +98,11 @@ namespace Solo {
 
 			if (InputManager::IsKeyPressedOrHeld(Key::LeftShift))
 			{
-				keyBoardSensitivity = 1.0;
+				keyBoardSensitivity = 0.1;
 			}
 			else
 			{
-				keyBoardSensitivity = 5.0;
+				keyBoardSensitivity = 2.0;
 			}
 
 

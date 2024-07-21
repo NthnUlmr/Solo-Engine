@@ -2,6 +2,8 @@ target_sources(SoloEngine PUBLIC
 "RenderingSystem.h"
 "Image.h"
 "Image.cpp"
+"Image3D.h"
+"Image3D.cpp"
 "Texture.h"
 "Texture.cpp"
 "Texture3D.h"

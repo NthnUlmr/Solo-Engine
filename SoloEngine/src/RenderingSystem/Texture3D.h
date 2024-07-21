@@ -1,5 +1,5 @@
 #pragma once
-#include "Image.h"
+#include "Image3D.h"
 
 namespace Solo
 {
@@ -19,9 +19,9 @@ namespace Solo
 
 	private:
 		std::string path_ = "";
-		Image* image_;
+		Image3D* image_;
 
-		unsigned int handle_;
+		unsigned int handle_ = 0;
 
 
 	};

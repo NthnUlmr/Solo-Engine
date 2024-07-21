@@ -33,6 +33,9 @@ uniform vec2 u_iResolution;
 
 uniform sampler3D sdfTexture;
 
+uniform vec3 mPos;
+uniform vec3 rScale;
+
 out vec4 color; // Output color of the fragment
 
 #if HW_PERFORMANCE==0
@@ -79,8 +82,30 @@ float checkersGradBox(in vec2 p, in vec2 dpdx, in vec2 dpdy)
     vec2 w = abs(dpdx) + abs(dpdy) + 0.001;
     // analytical integral (box filter)
     vec2 i = 2.0 * (abs(fract((p - 0.5 * w) * 0.5) - 0.5) - abs(fract((p + 0.5 * w) * 0.5) - 0.5)) / w;
-    // xor pattern
-    return 0.5 - 0.5 * i.x * i.y;
+    if (abs(p.x) <  0.1)
+    {
+        return -1.0;
+    }
+    else if (abs(p.y) < 0.1)
+    {
+        return -1.0;
+    }
+    else if(length(p) > 1.0)
+    {
+        // xor pattern
+        return 0.5 - 0.5 * i.x * i.y;
+    }
+    else if (length(p) > 0.9) {
+        return -1.0;
+    }
+    else if (length(p) > 0.1)
+    {
+        return 0.5 - 0.5 * i.x * i.y;
+    }
+    else
+    {
+        return -1.0;
+    }
 }
 
 
@@ -95,94 +120,27 @@ const float colors[8] = float[8](3.0,2.0,3.0,2.0,3.0,2.0,3.0, 2.0);
 // Returns the distance to the nearest object and that object's material id
 vec2 map(in vec3 pos, in vec3 chunkOrigin, in vec3 chunkExtent)
 {
-    vec2 res = vec2(pos.y, 0.0);
+    vec2 res = vec2(0.21*pos.y, 0.0);
 
-    // bounding box
-
-    //, vec3(0.0,0.0,0.0), vec3(10.0,10.0,10.0)
-    float yOffset = 0.2;
-    float bSize = 1.0 / 16.0;
-    //if (within(pos, vec3(0.0, yOffset, 0.0)))
-    //{
-    //    res = opU(res, vec2(sdfVoxelCube(pos, vec3(0.0, yOffset, 0.0), bSize), ii / jj));
-    //}
-
-    // Say there is some datastructure which stores voxel positions and materials. 
-    // We know the ray can only interact with voxels within like 1/8th of a meter of it
-    // So we just need to index the data structure at the ray position and neighbors
-
-    //if (sdBox(pos - vec3(0.0, bSize, 0.0), vec3(0.5,1.0,2.0- bSize)) < res.x)
-    //{
-
-    //    for (float ii = -0.5f; ii < 0.5f; ii += bSize)
-    //    {
-    //        for (float jj = -0.5f; jj < 0.5f; jj += bSize)
-    //        {
-    //            for (float kk = 0.0f + bSize; kk <= 2.f; kk ++)
-    //            {
-    //                res = opU(res, vec2(sdfVoxelCube(pos, vec3(ii, kk, jj), bSize * 0.5f), ii / jj + 1.5 + 2.5));
-    //            }
-    //        }
-
-    //    }
-    //}
-
-    vec3 distToOrigin = abs(pos - chunkOrigin);
-
-    if ((distToOrigin.x < chunkExtent.x) && (distToOrigin.y < chunkExtent.y) && (distToOrigin.z < chunkExtent.z))
+    vec3 splos = (pos - chunkOrigin);
+    if (sdfVoxelCube(pos, chunkOrigin, chunkExtent.x) <= 0.0)
     {
-        vec4 tmpRes = texture(sdfTexture, distToOrigin + (0.5f * chunkExtent));
-        res = opU(res, vec2(tmpRes.r, tmpRes.a));
+        vec3 P = vec3(int(splos.x * 100.0) / 100.0f, int(splos.y * 100.0) / 100.0f, int(splos.z * 100.0) / 100.0f);
+        vec4 tmpRes = texture(sdfTexture, P);
+        res = opU(res, vec2((tmpRes.r)/10.0, tmpRes.g*10.0));
     }
 
-    /*if (sdBox(pos - vec3(0.25, bSize, 0.0), vec3(0.25, 1.0, 2.0- bSize)) < res.x)
-    {
-
-        for (float ii = 0f; ii <= 0.5f; ii += bSize)
-        {
-            for (float jj = -0.5f; jj < 0.5f; jj += bSize)
-            {
-                for (float kk = 0.0f + bSize; kk <= 2.f; kk++)
-                {
-                    res = opU(res, vec2(sdfVoxelCube(pos, vec3(ii, kk, jj), bSize * 0.5f), ii / jj + 1.5 + 2.5));
-                }
-            }
-
-        }
-    }*/
-
-   /* float xid = floor(pos.x);
-    float yid = floor(pos.y);
-    float zid = floor(pos.z);
-
-    bool valid = sdfVoxelCube(pos, vec3(1.0,1.0,1.0),1.0f) <= 0.0;
-
-    if (valid)
-    {
-        int idx = int(int(pos.x) + int(pos.y) * 2 + int(pos.z) * 2 * 2);
-        idx = clamp(idx, 0, 7);
-        if (bool(voxels[idx]))
-        {
-            res = opU(res, vec2(sdfVoxelCube(pos, vec3(1.0, 1.0, 1.0), 0.5f), colors[idx]));
-
-        }
-    }*/
-
-
-    //res = opU(res, vec2(sdfVoxelCube(pos, vec3(0.0,1.5,0.0), 0.5f), colors[1]));
-
     return res;
-}
-
+}      
 // https://iquilezles.org/articles/nvscene2008/rwwtt.pdf
 float calcAO(in vec3 pos, in vec3 nor)
 {
     float occ = 0.0;
-    float sca = 1.0;
+    float sca = 0.8;
     for (int i = ZERO; i < 5; i++)
     {
         float h = 0.01 + 0.12 * float(i) / 4.0;
-        float d = map(pos + h * nor, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x;
+        float d = map(pos + h * nor, mPos, rScale).x;
         occ += (h - d) * sca;
         sca *= 0.95;
         if (occ > 0.35) break;
@@ -195,13 +153,18 @@ float calcAO(in vec3 pos, in vec3 nor)
 float calcSoftshadow(in vec3 ro, in vec3 rd, in float mint, in float tmax)
 {
     // bounding volume
-    float tp = (0.8 - ro.y) / rd.y; if (tp > 0.0) tmax = min(tmax, tp);
+    float tp = (0.8 - ro.y) / rd.y; 
+    
+    if (tp > 0.0)
+    {
+        tmax = min(tmax, tp);
+    }
 
     float res = 1.0;
     float t = mint;
-    for (int i = ZERO; i < 24; i++)
+    for (int i = ZERO; i < 12; i++)
     {
-        float h = map(ro + rd * t, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x;
+        float h = map(ro + rd * t, mPos, rScale).x * 20.0;
         float s = clamp(8.0 * h / t, 0.0, 1.0);
         res = min(res, s);
         t += clamp(h, 0.01, 0.2);
@@ -227,7 +190,7 @@ vec2 raycast(in vec3 ro, in vec3 rd)
 {
     vec2 res = vec2(-1.0, -1.0);
 
-    float tmin = 0.001;
+    float tmin = 0.0001;
     float tmax = 2000.0;
 
     // raytrace floor plane
@@ -248,10 +211,10 @@ vec2 raycast(in vec3 ro, in vec3 rd)
         //tmax = min(tb.y, tmax);
 
         float t = tmin;
-        for (int i = 0; i < 70 && t < tmax; i++)
+        for (int i = 0; i < 7000 && t < tmax; i++)
         {
-            vec2 h = map(ro + rd * t, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0));
-            if (abs(h.x) < (0.0001 * t))
+            vec2 h = map(ro + rd * t, mPos, rScale);
+            if (abs(h.x) < (1e-6 * t))
             {
                 res = vec2(t, h.y);
                 break;
@@ -267,23 +230,25 @@ vec2 raycast(in vec3 ro, in vec3 rd)
 // https://iquilezles.org/articles/normalsSDF
 vec3 calcNormal(in vec3 pos)
 {
-#if 0
-    vec2 e = vec2(1.0, -1.0) * 0.5773 * 0.0005;
-    return normalize(e.xyy * map(pos + e.xyy, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x +
-        e.yyx * map(pos + e.yyx, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x +
-        e.yxy * map(pos + e.yxy, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x +
-        e.xxx * map(pos + e.xxx, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x);
-#else
-    // inspired by tdhooper and klems - a way to prevent the compiler from inlining map() 4 times
-    vec3 n = vec3(0.0);
-    for (int i = ZERO; i < 4; i++)
-    {
-        vec3 e = 0.5773 * (2.0 * vec3((((i + 3) >> 1) & 1), ((i >> 1) & 1), (i & 1)) - 1.0);
-        n += e * map(pos + 0.0005 * e, vec3(0.0, 0.0, 0.0), vec3(10.0, 10.0, 10.0)).x;
-        //if( n.x+n.y+n.z>100.0 ) break;
-    }
-    return normalize(n);
-#endif    
+    //vec2 e = vec2(1.0, -1.0) * 0.1 *0.25;
+    //return normalize(e.xyy * map(pos + e.xyy, vec3(0.0, 1.0, 0.0), vec3(1.0, 1.0, 1.0)).x +
+    //                 e.yyx * map(pos + e.yyx, vec3(0.0, 1.0, 0.0), vec3(1.0, 1.0, 1.0)).x +
+    //                 e.yxy * map(pos + e.yxy, vec3(0.0, 1.0, 0.0), vec3(1.0, 1.0, 1.0)).x +
+    //                 e.xxx * map(pos + e.xxx, vec3(0.0, 1.0, 0.0), vec3(1.0, 1.0, 1.0)).x);
+    float delta = 0.01;
+
+    vec3 eps = vec3(1.0, 0.0, -1.0) * delta;
+    float dx = map(pos + eps.xyy, mPos, rScale).x - map(pos + eps.zyy, mPos, rScale).x;
+    dx = dx / (2 * delta);
+
+    float dy = map(pos + eps.yxy, mPos, rScale).x - map(pos + eps.yzy, mPos, rScale).x;
+    dy = dy / (2 * delta);
+
+    float dz = map(pos + eps.yyx, mPos, rScale).x - map(pos + eps.yyz, mPos, rScale).x;
+    dz = dz / (2 * delta);
+
+    vec3 grad = vec3(dx, dy, dz);
+    return normalize(grad);
 }
 
 
@@ -304,7 +269,6 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
         vec3 pos = ro + t * rd;
         vec3 nor = (m < 1.5) ? vec3(0.0, 1.0, 0.0) : calcNormal(pos);
         vec3 ref = reflect(rd, nor);
-
         // material        
         col = 0.2 + 0.2 * sin(m * 2.0 + vec3(0.0, 1.0, 2.0));
         float ks = 1.0;
@@ -331,7 +295,7 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
             vec3  hal = normalize(lig - rd);
             float dif = clamp(dot(nor, lig), 0.0, 1.0);
             //if( dif>0.0001 )
-            dif *= calcSoftshadow(pos, lig, 0.02, 2.5);
+            dif *= calcSoftshadow(pos, lig, 0.002, 2.5);
             float spe = pow(clamp(dot(nor, hal), 0.0, 1.0), 16.0);
             spe *= dif;
             spe *= 0.04 + 0.96 * pow(clamp(1.0 - dot(hal, lig), 0.0, 1.0), 5.0);
@@ -346,7 +310,7 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
             spe *= dif;
             spe *= 0.04 + 0.96 * pow(clamp(1.0 + dot(nor, rd), 0.0, 1.0), 5.0);
             //if( spe>0.001 )
-            spe *= calcSoftshadow(pos, ref, 0.02, 2.5);
+            spe *= calcSoftshadow(pos, ref, 0.002, 2.5);
             lin += col * 0.60 * dif * vec3(0.40, 0.60, 1.15);
             lin += 2.00 * spe * vec3(0.40, 0.60, 1.30) * ks;
         }
@@ -365,7 +329,7 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 rdx, in vec3 rdy)
 
         col = lin;
 
-        col = mix(col, vec3(0.7, 0.7, 0.9), 1.0 - exp(-0.0000001 * t * t * t));
+        col = mix(col, vec3(0.7, 0.7, 0.9), 1.0 - exp(-0.000001 * t * t * t));
     }
 
     return vec3(clamp(col, 0.0, 1.0));
@@ -407,13 +371,18 @@ void main() {
 
     // gain
     // col = col*3.0/(2.5+col);
+    if (col.x == 0.0)
+    {
+        color = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+    else
+    {
+        // gamma
+        col = pow(col, vec3(0.4545));
 
-    // gamma
-    col = pow(col, vec3(0.4545));
+        tot += col;
 
-    tot += col;
-
-    color = vec4(tot, 1.0);
-
+        color = vec4(tot, 1.0);
+    }
     //color = texture(sdfTexture, vec3(p,.0));
 }

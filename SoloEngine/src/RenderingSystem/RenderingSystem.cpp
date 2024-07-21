@@ -263,21 +263,6 @@ namespace Solo {
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 		glBindVertexArray(modelVao);
-		{
-			//std::string vertexShader;
-			//std::string fragShader;
-			//readShader(basePath + "skybox.shader", vertexShader, fragShader);
-			//Logger::Log("vertexShader: \n" + vertexShader, LogLevel::TRACE);
-			//Logger::Log("fragShader: \n" + fragShader, LogLevel::TRACE);
-
-			//glActiveTexture(GL_TEXTURE0);
-			//skybox = new CubeMap(basePath + "skybox/");
-			//skybox->bind();
-
-			//skyboxShader = createShader(vertexShader, fragShader);
-			//glUseProgram(skyboxShader);
-		}
-
 
 
 
@@ -290,19 +275,12 @@ namespace Solo {
 			shader = createShader(vertexShader, fragShader);
 			glUseProgram(shader);
 
-			glActiveTexture(GL_TEXTURE0+1);
-			//texture = new Texture(basePath + "grenuk.PNG");
-			//texture->bind();
-
-			//glActiveTexture(GL_TEXTURE0 + 2);
-			//texture2 = new Texture(basePath + "grenuk2.PNG");//
-			//texture2->bind();
-
-			// TODO: Only 2D for now
-			//voxelSdf = new Texture3D(basePath + "exampleSdf.png"); //
-			voxelSdf = new Texture3D(basePath + "grenuk.PNG");
+			glActiveTexture(GL_TEXTURE0);
+			voxelSdf = new Texture3D(basePath + "testGrad.PNG");
 			voxelSdf->bind();
 
+			voxelSdf2 = new Texture3D(basePath + "testGrad.PNG");
+			voxelSdf2->bind();
 			
 
 			location1 = glGetUniformLocation(shader, "u_Color");
@@ -334,9 +312,6 @@ namespace Solo {
 			location7 = glGetUniformLocation(shader, "sdfTexture");
 			glUniform1i(location7, 0);
 
-			std::cout << "+_)(+_)(+_)(+_)(  Texture Handle: " << voxelSdf->getHandle() << std::endl;
-
-
 			//cameraPosition = scene->camera_->getPosition();
 			glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition));
 
@@ -344,21 +319,23 @@ namespace Solo {
 			eye_dir = glm::normalize(cameraTarget - cameraPosition);
 			glUniform3fv(glGetUniformLocation(shader, "eye_dir"), 1, glm::value_ptr(eye_dir));
 
-
+			mPos = { 0.0,0.0,0.0 };
+			rScale = { 1.0,1.0,1.0 };
+			glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
 			
 		}
 
-		//IMGUI_CHECKVERSION();
-		//ImGui::CreateContext();
-		//ImGuiIO& io = ImGui::GetIO();
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 		// Setup Platform/Renderer backends
-		//ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-		//ImGui_ImplOpenGL3_Init();
-		//glfwPollEvents();
-		//glCullFace(GL_BACK);
+		ImGui_ImplGlfw_InitForOpenGL(soloWinCopy, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+		ImGui_ImplOpenGL3_Init();
+
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
@@ -395,28 +372,20 @@ namespace Solo {
 			glfwGetFramebufferSize(soloWinCopy, &width, &height);
 			glViewport(0, 0, width, height);
 
-			/*ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
-			ImGui::ShowDemoWindow();*/
+			ImGui::ShowDemoWindow();
 
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			generator.seed(distribution(generator));
 
-			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
-			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
-
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(unsigned int), &indexData[0], GL_DYNAMIC_DRAW);
-
 			glUseProgram(shader);
 			glBindVertexArray(modelVao);
 			glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 			glUniformMatrix4fv(location2, 1, GL_FALSE, &view[0].x);
-
-
 			glUniform2f(location6, width, height);
 
 			if (( oldwidth != width || oldheight != height ) && width > 1e-5 && height > 1e-5)
@@ -436,54 +405,47 @@ namespace Solo {
 			//glActiveTexture(GL_TEXTURE0); 
 			//glBindTexture(GL_TEXTURE_2D, texture->getHandle());
 
-			glUniform1i(location7, voxelSdf->getHandle());
-			glActiveTexture(GL_TEXTURE0+1); //
-			glBindTexture(GL_TEXTURE_3D, voxelSdf->getHandle());
+			//mPos.x = mPos.x;
+			rScale = { 1.0,1.0,1.0 };
 
-			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-			//model = glm::translate(model, glm::vec3(0, 1.1, 0));
+			glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
 
-			//glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
-			//glUniform1i(location5, texture2->getHandle());
-			//glActiveTexture(GL_TEXTURE0 + 2); 
-			//glBindTexture(GL_TEXTURE_2D, texture2->getHandle());
-			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-			//model = glm::translate(model, glm::vec3(0, -1.1, 0));
-			//
+			//glUniform1i(location7, voxelSdf->getHandle());
+			//glActiveTexture(GL_TEXTURE0); //
+			//glBindTexture(GL_TEXTURE_3D, voxelSdf->getHandle());
+
+
 			{ // Draw all voxels in the voxel array
 				glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 				glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 			}
 
 
+			//mPos = { 0.0,0.0,0.0 };
+			//rScale = { 1.0,1.0,1.0 };
+			//glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			//glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
 
-			{ // Skybox here
-				//glDepthMask(GL_FALSE);
-				//glUseProgram(skyboxShader);
+			//glUniform1i(location7, voxelSdf2->getHandle());
+			//glActiveTexture(GL_TEXTURE0); //
+			//glBindTexture(GL_TEXTURE_3D, voxelSdf2->getHandle());
 
-				//glBindVertexArray(skyboxVao);
-				////view = glm::mat4(glm::mat3(view));
-				////proj = glm::perspective(glm::radians(10.0f), (float)width / (float)height, 0.1f, 10.1f);
-				//glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(view))));
-				//glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
-				//glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getHandle());
-				//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-				//glDepthMask(GL_TRUE);
-				
+			{ // Draw all voxels in the voxel array
+			//glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 			}
-			
 
-			/*ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 			glfwSwapBuffers(soloWinCopy);
 			glfwPollEvents();
 			return true;
 		}
 		else if(initialized) {
-			/*ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplOpenGL3_Shutdown();
 			ImGui_ImplGlfw_Shutdown();
-			ImGui::DestroyContext();*/
+			ImGui::DestroyContext();
 			//glDeleteProgram(shaderProgram);
 			glfwTerminate();
 			initialized = false;
