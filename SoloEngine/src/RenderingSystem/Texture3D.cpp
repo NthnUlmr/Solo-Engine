@@ -10,6 +10,9 @@ namespace Solo
 	{
 		path_ = path;
 
+		image_ = new Image3D(path_);
+		glGenTextures(1, &handle_);
+		
 
 	}
 
@@ -19,13 +22,11 @@ namespace Solo
 	}
 
 	void Texture3D::bind() {
-		image_ = new Image3D(path_);
-		glGenTextures(1, &handle_);
 		glBindTexture(GL_TEXTURE_3D, handle_);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexImage3D(GL_TEXTURE_3D,
 			0,
@@ -37,7 +38,13 @@ namespace Solo
 			GL_RG,
 			GL_FLOAT,
 			image_->getData());
-		//glGenerateMipmap(GL_TEXTURE_3D);
+		glGenerateMipmap(GL_TEXTURE_3D);
 		image_->free();
+	}
+
+
+	void Texture3D::change()
+	{
+		image_->change();
 	}
 } // namespace Solo

@@ -209,57 +209,13 @@ namespace Solo {
 		
 		}
 
-		GLfloat skyboxVertices[] = {
-			// Positions
-			-1.0f,  1.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f,  1.0f, -1.0f,
-			-1.0f,  1.0f, -1.0f,
-
-			-1.0f, -1.0f,  1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f,  1.0f, -1.0f,
-			-1.0f,  1.0f, -1.0f,
-			-1.0f,  1.0f,  1.0f,
-			-1.0f, -1.0f,  1.0f,
-
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-
-			-1.0f, -1.0f,  1.0f,
-			-1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f, -1.0f,  1.0f,
-			-1.0f, -1.0f,  1.0f,
-
-			-1.0f,  1.0f, -1.0f,
-			1.0f,  1.0f, -1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			-1.0f,  1.0f,  1.0f,
-			-1.0f,  1.0f, -1.0f,
-
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f
-		};
 
 		glGenVertexArrays(1, &skyboxVao);
 		glBindVertexArray(skyboxVao);
 		unsigned int skyboxVbo = 0;
 		glGenBuffers(1, &skyboxVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, skyboxVbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 		glBindVertexArray(modelVao);
@@ -413,8 +369,9 @@ namespace Solo {
 
 			//glUniform1i(location7, voxelSdf->getHandle());
 			//glActiveTexture(GL_TEXTURE0); //
-			//glBindTexture(GL_TEXTURE_3D, voxelSdf->getHandle());
-
+			voxelSdf->change();
+			voxelSdf->bind();
+			
 
 			{ // Draw all voxels in the voxel array
 				glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);

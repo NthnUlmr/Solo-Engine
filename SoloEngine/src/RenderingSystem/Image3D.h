@@ -13,6 +13,9 @@ namespace Solo {
 
 		void free();
 
+
+		void change();
+
 		inline float* getData() const
 		{
 			return data_;

@@ -12,6 +12,8 @@ namespace Solo
 
 		void bind();
 
+		void change();
+
 		inline unsigned int getHandle()
 		{
 			return handle_;
