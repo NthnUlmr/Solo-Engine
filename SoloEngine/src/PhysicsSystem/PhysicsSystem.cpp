@@ -7,7 +7,7 @@ namespace Solo {
 
 	}
 
-	bool PhysicsSystem::update(std::shared_ptr<Scene> scene)
+	bool PhysicsSystem::update(std::shared_ptr<Scene> scene, const TimeStep& dt)
 	{
 		return true;
 	}

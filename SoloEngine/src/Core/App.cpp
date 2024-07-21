@@ -29,31 +29,55 @@ namespace Solo {
 		window_->SetEventCallback(SOLO_BIND_EVENT_CALLBACK(App::OnEvent));
 		InputManager::Init();
 		renderingSystem_->init(activeScene_);
+		audioSystem_->init(activeScene_);
 	}
 
 	void App::run()
 	{
 		Logger::Log("App::run() Entered", LogLevel::TRACE);
-		TimeStep dt;
+		double timeSinceLastLog = 0.0;
+		double logRate = 2.0; // Hz
+		double logInterval = 1.0 / logRate; // sec
+
+		double frameRate = 120.0;
+		double frameInterval = 1.0 / frameRate;
+
+		double currentFrameCount = 0;
 		while (isRunning) {
 			if (!activeScene_) continue;
 
 			long long time = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 			TimeStep timestep = static_cast<long long>(time - timeLastFrameMS_);
 
-			CameraController(timestep);
-
-
-			activeScene_->update();
-			Logger::Log("RenderingSystem::update() Entered", LogLevel::INSANE);
-
-			for (auto layer : appLayerStack)
+			if (timestep.GetSeconds() > frameInterval)
 			{
-				layer->OnUpdate(dt);
+				CameraController(timestep);
+
+
+				activeScene_->update();
+				audioSystem_->update(activeScene_, timestep);
+				Logger::Log("RenderingSystem::update() Entered", LogLevel::INSANE);
+
+				for (auto layer : appLayerStack)
+				{
+					layer->OnUpdate(timestep);
+				}
+
+				isRunning = isRunning
+					&& renderingSystem_->update(activeScene_, timestep);
+				timeLastFrameMS_ = time;
+
+				timeSinceLastLog += timestep.GetSeconds();
+				currentFrameCount++;
+				if (timeSinceLastLog >= logInterval)
+				{
+
+					std::cout << "FPS : " << currentFrameCount / timeSinceLastLog << std::endl;
+					timeSinceLastLog = 0.0;
+					currentFrameCount = 0.0;
+				}
 			}
 
-			isRunning = isRunning && renderingSystem_->update(activeScene_);
-			timeLastFrameMS_ = time;
 		}
 	}
 
@@ -71,30 +95,41 @@ namespace Solo {
 		if (processInput)
 		{
 
+
+			if (InputManager::IsKeyPressedOrHeld(Key::LeftShift))
+			{
+				keyBoardSensitivity = 0.1;
+			}
+			else
+			{
+				keyBoardSensitivity = 2.0;
+			}
+
+
 			if (InputManager::IsKeyPressedOrHeld(Key::W))
 			{
-				m_CameraPosition[0] -= -sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] -= cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] += sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] += cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 			if (InputManager::IsKeyPressedOrHeld(Key::A))
 			{
-				m_CameraPosition[0] -= cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] -= sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] -= cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] -= -sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 
 			if (InputManager::IsKeyPressedOrHeld(Key::S))
 			{
-				m_CameraPosition[0] += -sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] += cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] -= sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] -= cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 
 			if (InputManager::IsKeyPressedOrHeld(Key::D))
 			{
-				m_CameraPosition[0] += cos(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
-				m_CameraPosition[2] += sin(glm::radians(-m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[0] += cos(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
+				m_CameraPosition[2] += -sin(glm::radians(m_CameraRotationX)) * diff * keyBoardSensitivity * playerBaseMoveSpeed;
 
 			}
 
@@ -105,7 +140,7 @@ namespace Solo {
 			}
 
 			m_CameraPosition[1] += m_CameraVelocityZ * diff;
-			m_CameraPosition[1] = std::clamp(m_CameraPosition[1], 16.0, 999.0);
+			m_CameraPosition[1] = std::clamp(m_CameraPosition[1], 1.78, 999.0);
 
 			if (m_CameraPosition[1] > 0.0)
 			{
@@ -117,10 +152,12 @@ namespace Solo {
 				m_CameraVelocityZ = 0.0;
 			}
 
-
-			m_CameraRotationX -= ((mouseP[0] - prevMousePee[0]) * mouseXScale * mouseHorzSensitivity);
-			m_CameraRotationY -= ((mouseP[1] - prevMousePee[1]) * mouseYScale * mouseVertSensitivity);
-			m_CameraRotationY = std::clamp(m_CameraRotationY, -89., 89.);
+			if (prevMousePee[0] != 0.0)
+			{
+				m_CameraRotationX += ((mouseP[0] - prevMousePee[0]) * mouseXScale * mouseHorzSensitivity);
+				m_CameraRotationY += ((mouseP[1] - prevMousePee[1]) * mouseYScale * mouseVertSensitivity);
+				m_CameraRotationY = std::clamp(m_CameraRotationY, -89., 89.);
+			}
 
 
 
@@ -152,6 +189,7 @@ namespace Solo {
 		}
 	prevMousePee = mouseP;
 	
+
 	activeScene_->camera_->setRotation((float)m_CameraRotationY, (float)m_CameraRotationX);
 	activeScene_->camera_->setPosition(m_CameraPosition);
 	}

@@ -1,6 +1,6 @@
 #include "RenderingSystem.h"
 
-
+#include "InputManager.h"
 
 
 #include <fstream>
@@ -38,7 +38,7 @@ static unsigned int compileShader(const std::string& source, unsigned int type)
 			+ " failed", Solo::LogLevel::ERROR);
 
 		Solo::Logger::Log("compileShader() " + static_cast<std::string>(message), Solo::LogLevel::ERROR);
-
+		
 		glDeleteShader(id);
 		id = 0;
 	}
@@ -180,48 +180,9 @@ namespace Solo {
 		//ShaderPipeline* texturedModel
 		//pipelines[0]->addShader(basePath + "basic.shader");
 		//pipelines[0]->addTexture(basePath + "grenuk.PNG");
-		float positions[40] = {
-			-0.5f, -0.5f,  0.5f,   0.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,   1.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,   1.0f, 1.0f,
-
-			-0.5f, -0.5f, -0.5f,   1.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,   0.0f, 1.0f,
-			-0.5f,  0.5f, -0.5f,   1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,   0.0f, 0.0f
-
-		};
-
-		unsigned int indices[36] = {
-			//Top
-			2, 6, 7,
-			2, 3, 7,
-
-			//Bottom
-			0, 4, 5,
-			0, 1, 5,
-
-			//Left
-			0, 2, 6,
-			0, 4, 6,
-
-			//Right
-			1, 3, 7,
-			1, 5, 7,
-
-			//Front
-			0, 2, 3,
-			0, 1, 3,
-
-			//Back
-			4, 6, 7,
-			4, 5, 7,
-		};
+		////
 
 		{
-
-
 			glGenVertexArrays(1, &modelVao);
 			glBindVertexArray(modelVao);
 
@@ -229,92 +190,35 @@ namespace Solo {
 			
 			glGenBuffers(1, &vbuf);
 			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_DYNAMIC_DRAW);
+			//glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadPositions), quadPositions, GL_DYNAMIC_DRAW);
 
 
 			
 			glGenBuffers(1, &ibo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+			//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_DYNAMIC_DRAW);
 
 			// Specify layout of buffer
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)0);
 			glEnableVertexAttribArray(0);
 
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(sizeof(float) * 3));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)(sizeof(float) * 3));
 			glEnableVertexAttribArray(1);
 		
 		}
 
-		GLfloat skyboxVertices[] = {
-			// Positions
-			-1.0f,  1.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f,  1.0f, -1.0f,
-			-1.0f,  1.0f, -1.0f,
-
-			-1.0f, -1.0f,  1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f,  1.0f, -1.0f,
-			-1.0f,  1.0f, -1.0f,
-			-1.0f,  1.0f,  1.0f,
-			-1.0f, -1.0f,  1.0f,
-
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-
-			-1.0f, -1.0f,  1.0f,
-			-1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f, -1.0f,  1.0f,
-			-1.0f, -1.0f,  1.0f,
-
-			-1.0f,  1.0f, -1.0f,
-			1.0f,  1.0f, -1.0f,
-			1.0f,  1.0f,  1.0f,
-			1.0f,  1.0f,  1.0f,
-			-1.0f,  1.0f,  1.0f,
-			-1.0f,  1.0f, -1.0f,
-
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f
-		};
 
 		glGenVertexArrays(1, &skyboxVao);
 		glBindVertexArray(skyboxVao);
 		unsigned int skyboxVbo = 0;
 		glGenBuffers(1, &skyboxVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, skyboxVbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 		glBindVertexArray(modelVao);
-		{
-			std::string vertexShader;
-			std::string fragShader;
-			readShader(basePath + "skybox.shader", vertexShader, fragShader);
-			Logger::Log("vertexShader: \n" + vertexShader, LogLevel::TRACE);
-			Logger::Log("fragShader: \n" + fragShader, LogLevel::TRACE);
-
-			glActiveTexture(GL_TEXTURE0);
-			skybox = new CubeMap(basePath + "skybox/");
-			skybox->bind();
-
-			skyboxShader = createShader(vertexShader, fragShader);
-			glUseProgram(skyboxShader);
-		}
-
 
 
 
@@ -324,102 +228,83 @@ namespace Solo {
 			readShader(basePath + "basic.shader", vertexShader, fragShader);
 			Logger::Log("vertexShader: \n" + vertexShader, LogLevel::TRACE);
 			Logger::Log("fragShader: \n" + fragShader, LogLevel::TRACE);
-
-			glActiveTexture(GL_TEXTURE0 + 1);
-			texture = new Texture(basePath + "grenuk.PNG");
-			texture->bind();
-
-			glActiveTexture(GL_TEXTURE0 + 2);
-			texture2 = new Texture(basePath + "grenuk2.PNG");
-			texture2->bind();
-
 			shader = createShader(vertexShader, fragShader);
 			glUseProgram(shader);
 
-			location = glGetUniformLocation(shader, "u_Color");
-			glUniform4f(location, 1.0, t, t, 1.0f);
+			glActiveTexture(GL_TEXTURE0);
+			voxelSdf = new Texture3D(basePath + "testGrad.PNG");
+			voxelSdf->bind();
+
+			voxelSdf2 = new Texture3D(basePath + "testGrad.PNG");
+			voxelSdf2->bind();
+			
+
+			location1 = glGetUniformLocation(shader, "u_Color");
+			glUniform4f(location1, 1.0f, t, t, 1.0f);
 
 
 			view = glm::mat4(1.0);
 			view = glm::translate(view, glm::vec3(0.0, 0.0, 0.5));
 			view = glm::inverse(view);
-			location2 = glGetUniformLocation(shader, "u_View");
+			location2 = glGetUniformLocation(shader, "view");
 			glUniformMatrix4fv(location2, 1, GL_FALSE, &view[0].x);
 
 			proj = glm::mat4(1.0);
-			location3 = glGetUniformLocation(shader, "u_Proj");
+			location3 = glGetUniformLocation(shader, "proj");
 			glUniformMatrix4fv(location3, 1, GL_FALSE, &proj[0].x);
 
 			model = glm::mat4(1.0);
-			location4 = glGetUniformLocation(shader, "u_Model");
+			location4 = glGetUniformLocation(shader, "model");
 			glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 
-			location5 = glGetUniformLocation(shader, "u_Tex");
-			glUniform1i(location5, texture->getHandle());
+			//location5 = glGetUniformLocation(shader, "u_Tex");
+			//glUniform1i(location5, texture->getHandle());
+
+
+
+			location6 = glGetUniformLocation(shader, "u_iResolution");
+			glUniform2f(location6, 1280.0f, 720.0f);
+
+			location7 = glGetUniformLocation(shader, "sdfTexture");
+			glUniform1i(location7, 0);
+
+			//cameraPosition = scene->camera_->getPosition();
+			glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition));
+
+			glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+			eye_dir = glm::normalize(cameraTarget - cameraPosition);
+			glUniform3fv(glGetUniformLocation(shader, "eye_dir"), 1, glm::value_ptr(eye_dir));
+
+			mPos = { 0.0,0.0,0.0 };
+			rScale = { 1.0,1.0,1.0 };
+			glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
+			
 		}
 
-
-
-
-		//IMGUI_CHECKVERSION();
-		//ImGui::CreateContext();
-		//ImGuiIO& io = ImGui::GetIO();
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 		// Setup Platform/Renderer backends
-		//ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-		//ImGui_ImplOpenGL3_Init();
-		//glfwPollEvents();
-		//glCullFace(GL_BACK);
+		ImGui_ImplGlfw_InitForOpenGL(soloWinCopy, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+		ImGui_ImplOpenGL3_Init();
+
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-
-
-
-
-		int count = 0;
-		for (int ix = 0; ix < worldLength; ix++)
+		for (int ii = 0; ii < 24; ii ++)
 		{
-			for (int iy = 0; iy < worldHeight; iy++)
-			{
-				for(int iz = 0; iz < worldWidth; iz++)
-				{
-					voxels.push_back({ ix,iy,iz });
-					for (int ip = 0; ip < 40; ip++)
-					{
-						int res = ip % 5;
-						if (res == 0)
-						{
-							vertexData.push_back(positions[ip] + ix);
-						}
-						else if (res == 1)
-						{
-							vertexData.push_back(positions[ip] + iy);
-						}
-						else if (res == 2)
-						{
-							vertexData.push_back(positions[ip] + iz);
-						}
-						else
-						{
-							vertexData.push_back(positions[ip]);
-						}
-						
-					}
-					
-					for (int ii = 0; ii < 36; ii++)
-					{
-						indexData.push_back(indices[ii] + count*8);
-					}
-					count++;
-					
-				}
-			}
+			vertexData.push_back(quadPositions[ii]);
 		}
 
-
+		for (int ii = 0; ii < 6; ii++)
+		{
+			indexData.push_back(quadIndices[ii]);
+		}
+		
 		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_DYNAMIC_DRAW);
 
@@ -428,18 +313,13 @@ namespace Solo {
 
 	}
 
-	bool RenderingSystem::update(std::shared_ptr<Scene> scene)
+	bool RenderingSystem::update(std::shared_ptr<Scene> scene, const TimeStep& dt)
 	{
-		//scene->camera_->addRotation(0.0f, 0.01f);
 		view = scene->camera_->getView();
 		proj = scene->camera_->getProjection();
-		
-		
-		// Get all entities with a transform, a model, and a texture component
-		// These are non-voxel things
 
-		// Get all entities with a transform, and a texture component
-		// These are voxels
+		cameraPosition = scene->camera_->getPosition();
+		glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1, glm::value_ptr(cameraPosition)); 
 
 		t = t + 0.001f;
 		t = fmod(t, 1.0);
@@ -448,24 +328,25 @@ namespace Solo {
 			glfwGetFramebufferSize(soloWinCopy, &width, &height);
 			glViewport(0, 0, width, height);
 
-			/*ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
-			ImGui::ShowDemoWindow();*/
+			ImGui::ShowDemoWindow();
 
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//model = glm::rotate(model, 0.0001f, glm::vec3(0, 1, 0));
-			//model = glm::rotate(model, 0.0001f, glm::vec3(0, 0, 1));
+
+			generator.seed(distribution(generator));
 
 			glUseProgram(shader);
 			glBindVertexArray(modelVao);
 			glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 			glUniformMatrix4fv(location2, 1, GL_FALSE, &view[0].x);
+			glUniform2f(location6, width, height);
 
 			if (( oldwidth != width || oldheight != height ) && width > 1e-5 && height > 1e-5)
 			{
-				scene->camera_->setProjectionPerspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
+				scene->camera_->setProjectionPerspective(60.0f, (float)width / (float)height, 0.1f, 10000.0f);
 				glUniformMatrix4fv(location3, 1, GL_FALSE, &scene->camera_->getProjection()[0].x);
 				oldwidth = width;
 				oldheight = height;
@@ -474,55 +355,54 @@ namespace Solo {
 			
 
 
-			glUniform4f(location, 1.0f, t, 1.0f-t, 1.0f);
+			glUniform4f(location1, 1.0f, t, 1.0f-t, 1.0f);
 
-			glUniform1i(location5, texture->getHandle());
-			glActiveTexture(GL_TEXTURE0 + 1); 
-			glBindTexture(GL_TEXTURE_2D, texture->getHandle());
-			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-			
-			//model = glm::translate(model, glm::vec3(0, 1.1, 0));
+			//glUniform1i(location5, texture->getHandle());
+			//glActiveTexture(GL_TEXTURE0); 
+			//glBindTexture(GL_TEXTURE_2D, texture->getHandle());
 
-			//glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
-			//glUniform1i(location5, texture2->getHandle());
-			//glActiveTexture(GL_TEXTURE0 + 2); 
-			//glBindTexture(GL_TEXTURE_2D, texture2->getHandle());
-			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-			//model = glm::translate(model, glm::vec3(0, -1.1, 0));
+			//mPos.x = mPos.x;
+			rScale = { 1.0,1.0,1.0 };
+
+			glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
+
+			//glUniform1i(location7, voxelSdf->getHandle());
+			//glActiveTexture(GL_TEXTURE0); //
+			voxelSdf->change();
+			voxelSdf->bind();
 			
+
 			{ // Draw all voxels in the voxel array
-
-
-
 				glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
 				glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 			}
 
-			{ // Skybox here
-				glDepthMask(GL_FALSE);
-				glUseProgram(skyboxShader);
 
-				glBindVertexArray(skyboxVao);
-				//view = glm::mat4(glm::mat3(view));
-				//proj = glm::perspective(glm::radians(10.0f), (float)width / (float)height, 0.1f, 10.1f);
-				glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(view))));
-				glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
-				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getHandle());
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+			//mPos = { 0.0,0.0,0.0 };
+			//rScale = { 1.0,1.0,1.0 };
+			//glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			//glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
 
-				glDepthMask(GL_TRUE);
+			//glUniform1i(location7, voxelSdf2->getHandle());
+			//glActiveTexture(GL_TEXTURE0); //
+			//glBindTexture(GL_TEXTURE_3D, voxelSdf2->getHandle());
+
+			{ // Draw all voxels in the voxel array
+			//glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 			}
 
-			/*ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 			glfwSwapBuffers(soloWinCopy);
 			glfwPollEvents();
 			return true;
 		}
 		else if(initialized) {
-			/*ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplOpenGL3_Shutdown();
 			ImGui_ImplGlfw_Shutdown();
-			ImGui::DestroyContext();*/
+			ImGui::DestroyContext();
 			//glDeleteProgram(shaderProgram);
 			glfwTerminate();
 			initialized = false;
