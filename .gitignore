@@ -13,6 +13,7 @@ _deps
 *.PNG
 *.jpg
 
+build
 /.vs
 /bin/Debug
 /out/build/x64-release

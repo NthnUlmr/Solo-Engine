@@ -1,20 +1,20 @@
 
 #include "Engine.h"
-
+#include <iostream>
 namespace SL
 {
-    Engine::Engine()
-    {
+Engine::Engine()
+{
+    std::cout << "Engine::Ctor()" << std::endl;
+}
 
-    }
+Engine::~Engine()
+{
+    std::cout << "Engine::Dtor()" << std::endl;
+}
 
-    Engine::~Engine()
-    {
-
-    }
-
-    void Engine::run()
-    {
-
-    } 
+void Engine::run()
+{
+    std::cout << "Engine::run()" << std::endl;
+} 
 }
