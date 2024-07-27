@@ -1,19 +1,15 @@
-﻿
 
-target_sources(SoloEngine PUBLIC 
-"App.h"
-"EntryPoint.h"
-"System.h"
-"Logger.h"
-"App.cpp"
-"LayerStack.h"
-LayerStack.cpp
-AppLayer.h
-AppLayer.cpp
-TimeStep.h
+set(target SoloCore)
 
-PRIVATE
+set(sources
+    Engine.cpp
 )
 
+set(headers
+    Engine.h
+)
 
- target_include_directories(SoloEngine PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+add_library(${target}
+    ${sources}
+    ${headers}
+)
