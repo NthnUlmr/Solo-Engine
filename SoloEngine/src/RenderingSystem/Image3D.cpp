@@ -12,9 +12,9 @@ namespace Solo {
 		/// \todo Double check path is valid so can catch error and give user useful error
 		//stbi_set_flip_vertically_on_load(false);
 		//data_ = stbi_load(path_.c_str(), &width_, &height_, &nChannels_, 0);
-		width_ = 10;
-		height_ = 10;
-		depth_ = 10;
+		width_ = 16;
+		height_ = 16;
+		depth_ = 16;
 		nChannels_ = 2;
 		
 
@@ -108,7 +108,7 @@ namespace Solo {
 					intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(3.5 * scale), 0.5 * scale)));
 					intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(5.5 * scale), 0.5 * scale)));
 					intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(4.5 * scale), 0.5 * scale)));
-					intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(3.5 * scale, 5.5 * scale, 5.5 * scale), 0.5 * scale)));
+					//intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(3.5 * scale, 5.5 * scale, 5.5 * scale), 0.5 * scale)));
 					intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(6.5 * scale), 0.5 * scale)));
 					intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(7.5 * scale), 0.5 * scale)));
 					//intermed = std::min(intermed, (float)(sdfVoxelCube(glm::vec3((double)ii, (double)jj, (double)kk), glm::vec3(8.5 * scale), 0.5* scale)));

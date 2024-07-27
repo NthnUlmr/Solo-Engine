@@ -361,7 +361,7 @@ namespace Solo {
 			//glActiveTexture(GL_TEXTURE0); 
 			//glBindTexture(GL_TEXTURE_2D, texture->getHandle());
 
-			//mPos.x = mPos.x;
+			mPos = { 0.0,0.0,0.0 };
 			rScale = { 1.0,1.0,1.0 };
 
 			glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
@@ -371,25 +371,21 @@ namespace Solo {
 			//glActiveTexture(GL_TEXTURE0); //
 			voxelSdf->change();
 			voxelSdf->bind();
-			
-
-			{ // Draw all voxels in the voxel array
-				glUniformMatrix4fv(location4, 1, GL_FALSE, &model[0].x);
-				glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
-			}
+				
+			glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 
 
-			//mPos = { 0.0,0.0,0.0 };
-			//rScale = { 1.0,1.0,1.0 };
-			//glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
-			//glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
+			mPos = { 5.0,0.0,0.0 };
+			rScale = { 1.0,1.0,1.0 };
+			glUniform3fv(glGetUniformLocation(shader, "mPos"), 1, glm::value_ptr(mPos));
+			glUniform3fv(glGetUniformLocation(shader, "rScale"), 1, glm::value_ptr(rScale));
 
 			//glUniform1i(location7, voxelSdf2->getHandle());
 			//glActiveTexture(GL_TEXTURE0); //
 			//glBindTexture(GL_TEXTURE_3D, voxelSdf2->getHandle());
 
 			{ // Draw all voxels in the voxel array
-			//glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, nullptr);
 			}
 
 

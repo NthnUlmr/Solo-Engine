@@ -125,9 +125,9 @@ vec2 map(in vec3 pos, in vec3 chunkOrigin, in vec3 chunkExtent)
     vec3 splos = (pos - chunkOrigin);
     if (sdfVoxelCube(pos, chunkOrigin, chunkExtent.x) <= 0.0)
     {
-        vec3 P = vec3(int(splos.x * 100.0) / 100.0f, int(splos.y * 100.0) / 100.0f, int(splos.z * 100.0) / 100.0f);
+        vec3 P = vec3((splos.x * 100.0) / 100.0f, (splos.y * 100.0) / 100.0f, (splos.z * 100.0) / 100.0f);
         vec4 tmpRes = texture(sdfTexture, P);
-        res = opU(res, vec2((tmpRes.r)/10.0, tmpRes.g*10.0));
+        res = opU(res, vec2((tmpRes.r)/16.0, tmpRes.g*10.0));
     }
 
     return res;
