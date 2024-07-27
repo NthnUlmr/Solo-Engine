@@ -1,19 +1,46 @@
 
 
-
+#pragma once
+#include <assert.h>
+#include <string>
+#include <thread>
+#include "ThreadSafe.h"
 namespace SL
 {
 
-    
-class Engine
-{
-public:
-    Engine();
-    ~Engine();
+	struct EngineCLArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
 
-    void run();
+		const char* operator[](int index) const { assert(index < Count);  return Args[index]; }
+	};
 
-private:
+	struct EngineSettings {
+		std::string name = "Empty Solo App";
+		std::string workingDir;
+		EngineCLArgs	clArgs;
+	};  
+
+
+    class Engine
+    {
+    public:
+        Engine();
+        Engine(const EngineSettings & settings);
+        ~Engine();
+
+        void run_async();
+
+    private:
+
+        void _run();
+
+        ThreadSafe<bool> isRunning;
+
+        std::thread main_thread;
+
+        EngineSettings settings;
 
 };
 
