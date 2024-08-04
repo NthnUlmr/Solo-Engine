@@ -17,6 +17,12 @@ namespace SL
         Logger::Log("Engine::Ctor()", LogLevel::TRACE);
 
         settings = inSettings;
+        router.subscribe(0,initEvent, OnInit);
+        router.subscribe(0,updateEvent, OnUpdate);
+
+        router.registerEvent(0,initEvent, 0.5);
+
+        
     }
 
     Engine::~Engine()
@@ -24,6 +30,16 @@ namespace SL
         Logger::Log("Engine::Dtor()", LogLevel::TRACE);
 
         main_thread.join();
+    }
+
+    void Engine::OnInit()
+    {
+        Logger::Log("Engine::OnInit()", LogLevel::TRACE);
+    }
+
+    void Engine::OnUpdate()
+    {
+        Logger::Log("Engine::OnUpdate()", LogLevel::TRACE);
     }
 
     void Engine::run_async()
@@ -41,6 +57,7 @@ namespace SL
         while(static_cast<bool>(isRunning))
         {
             Logger::Log("Running " + settings.name , LogLevel::INSANE);
+            router.registerEvent(0,updateEvent, 0.0);
         }
     }
 

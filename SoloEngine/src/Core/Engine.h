@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include "ThreadSafe.h"
+#include "EventRouter.h"
 namespace SL
 {
 
@@ -32,6 +33,10 @@ namespace SL
 
         void run_async();
 
+        static void OnInit();
+        static void OnUpdate();
+        
+
     private:
 
         void _run();
@@ -41,6 +46,11 @@ namespace SL
         std::thread main_thread;
 
         EngineSettings settings;
+
+        EventRouter router;
+
+        OnUpdateEvent updateEvent;
+        OnInitEvent initEvent;
 
 };
 
